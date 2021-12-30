@@ -8,34 +8,25 @@
 
 
 #testes
-# require_relative "../app/models/historico"
-def numerico?(string)
-  Float(string) != nil rescue false
-end
+require_relative "../app/models/historico"
+require 'csv'
 
-a = "SCHMITT6030h60"
-b = "900h)90"
+# pdf_path = "../scrap/historico_20200038248.pdf"
+pdf_path = "app/assets/images/historico_2015070166.pdf"
+# pdf_path = Rails.root.join "app", "assets", "images", "historico_2015070166.pdf"
+csv_path = "app/csv/historico.csv"
 
-# if numerico?(a.chars.last(3).join)
-#   puts "last 3 numeric: '#{a.chars.last(3).join}'"
-# elsif numerico?(a.chars.last(2).join)
-#   puts "last 2 numeric: '#{a.chars.last(2).join}'"
-# elsif numerico?(a.chars.last)
-#   puts "last 1 numeric: '#{a.chars.last}'"
-# else
-#   puts "last 1 not numeric: '#{a.chars.last}'"
-# end
+h = Historico.new
 
-def number_right_to_array(string)
-  if numerico?(string.chars.last(3).join)
-    return string.chars.last(3).join.split
-  elsif numerico?(string.chars.last(2).join)
-    return string.chars.last(2).join.split
-  elsif numerico?(string.chars.last)
-    return string.chars.last.split
-  else
-    return ["0"]
-  end
-end
+result = h.pdf_is_historico?(pdf_path)
 
-puts number_right_to_array(a)
+h.parse_pdf(pdf_path, csv_path)
+
+csv = CSV.read(csv_path, headers: true)
+
+unique_ano_per = csv["ano_per"].uniq
+
+puts unique_ano_per
+puts h.nome
+puts h.matricula
+puts result

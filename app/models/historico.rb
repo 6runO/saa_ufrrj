@@ -1,4 +1,4 @@
-# require 'pdf-reader'
+require 'pdf-reader'
 require 'csv'
 
 class Historico
@@ -6,8 +6,8 @@ class Historico
 
   # pdf_path = "../scrap/historico_20200038248.pdf"
 
-  def parse_pdf(pdf_path)
-    csv_path = Rails.root.join "app", "csv", "historico.csv"
+  def parse_pdf(pdf_path, csv_path)
+    # csv_path = Rails.root.join "app", "csv", "historico.csv"
     # Doing stuff with pdf-reader
     reader = PDF::Reader.new(pdf_path)
     csv_options = { col_sep: ',', force_quotes: true, quote_char: '"' }
@@ -16,6 +16,17 @@ class Historico
       csv << %w(ano_per tipo componente ch turma freq media situacao)
       loop_through_pages(reader, csv)
     end
+  end
+
+  def pdf_is_historico?(pdf_path)
+    reader = PDF::Reader.new(pdf_path)
+    page = reader.page(1)
+    page_text = page.text
+    ### Uncomment only for code checking purposes
+    # puts page_text
+    text_check_one = "Histórico Escolar - Emitido em:"
+    text_check_two = "Sistema Integrado de Gestão de Atividades Acadêmicas"
+    page_text.include? text_check_one && text_check_two
   end
 
   private

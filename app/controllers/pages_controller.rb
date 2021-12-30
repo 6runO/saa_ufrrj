@@ -1,17 +1,27 @@
 require_relative "../models/historico"
+require 'tempfile'
+require 'csv'
 
 class PagesController < ApplicationController
   def home
-    # PDF::Reader.new(Rails.root.join "app", "assets", "images", "historico_2015070166.pdf")
-    @f ||= "kjsdf"
   end
 
   def upload
-    # raise
-    h = Historico.new
-    h.parse_pdf(params[:historico].path)
-    # h.parse_pdf(Rails.root.join "app", "assets", "images", "historico_2015070166.pdf")
-    @f = h.nome
-    # redirect_to root_path
+    @h = Historico.new
+    temp = Tempfile.new(['historico', '.csv'])
+    @pdf_verified = @h.pdf_is_historico?(params[:historico].path)
+    if @pdf_verified
+      @h.parse_pdf(params[:historico].path, temp.path)
+      # h.parse_pdf(Rails.root.join "app", "assets", "images", "historico_2015070166.pdf")
+      historico_csv_analysis(temp.path)
+      # redirect_to root_path
+    end
+  end
+
+  private
+
+  def historico_csv_analysis(csv_path)
+    csv = CSV.read(csv_path, headers: true)
+    @unique_ano_per = csv["ano_per"].uniq
   end
 end
