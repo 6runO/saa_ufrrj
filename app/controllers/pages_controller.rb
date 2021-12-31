@@ -16,6 +16,7 @@ class PagesController < ApplicationController
       historico_csv_analysis(temp.path)
       # redirect_to root_path
     end
+    temp.unlink
   end
 
   private

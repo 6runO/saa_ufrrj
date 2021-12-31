@@ -4,8 +4,6 @@ require 'csv'
 class Historico
   attr_reader :nome, :matricula, :data_nascimento, :local_nascimento, :cpf, :curriculo, :inicio, :ingresso
 
-  # pdf_path = "../scrap/historico_20200038248.pdf"
-
   def parse_pdf(pdf_path, csv_path)
     # csv_path = Rails.root.join "app", "csv", "historico.csv"
     # Doing stuff with pdf-reader

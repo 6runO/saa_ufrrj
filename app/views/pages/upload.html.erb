@@ -1,3 +1,10 @@
 
 
-<h1><%= @f %></h1>
+<h2><%= @h.nome %></h2>
+<h2><%= @h.matricula %></h2>
+
+<ul>
+  <% @unique_ano_per.each do |ano_per| %>
+    <li><%= ano_per %></li>
+  <% end %>
+</ul>
