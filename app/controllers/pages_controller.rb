@@ -23,6 +23,6 @@ class PagesController < ApplicationController
 
   def historico_csv_analysis(csv_path)
     csv = CSV.read(csv_path, headers: true)
-    @unique_ano_per = csv["ano_per"].uniq
+    @unique_ano_per = csv["ano_per"].uniq.sort
   end
 end

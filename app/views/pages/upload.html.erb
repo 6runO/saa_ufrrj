@@ -3,8 +3,36 @@
 <h2><%= @h.nome %></h2>
 <h2><%= @h.matricula %></h2>
 
-<ul>
-  <% @unique_ano_per.each do |ano_per| %>
-    <li><%= ano_per %></li>
-  <% end %>
-</ul>
+<% if @pdf_verified %>
+  <div class="container pt-3 pb-5">
+    <div class="card text-center pb-4">
+      <div class="card-header">
+        <ul class="nav nav-pills card-header-tabs" id="myTab" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="geral-tab" data-toggle="tab" href="#geral" role="tab" aria-controls="geral" aria-selected="true">Geral</a>
+          </li>
+          <% @unique_ano_per.each_with_index do |ano_per, index| %>
+            <li class="nav-item">
+              <a class="nav-link" id=<%= "tab-#{index}" %> data-toggle="tab" href=<%= "#per-#{index}" %> role="tab" aria-controls=<%= "#per-#{index}" %> aria-selected="false"><%= ano_per %></a>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+
+      <div class="tab-content" id="myTabContent">
+        <h5 class="card-title text-center mt-3"><%= @h.nome %></h5>
+        <h5><%= @h.matricula %></h5>
+        <div class="tab-pane fade show active" id="geral" role="tabpanel" aria-labelledby="geral-tab">
+          Colocar aqui informações gerais...
+        </div>
+        <% @unique_ano_per.each_with_index do |ano_per, index| %>
+          <div class="tab-pane fade text-center" id=<%= "per-#{index}" %> role="tabpanel" aria-labelledby=<%= "tab-#{index}" %>>
+            Informações sobre o período <%= ano_per %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <p>O arquivo selecionado não foi idendificado como um histórico válido do SIGAA.</p>
+<% end %>
