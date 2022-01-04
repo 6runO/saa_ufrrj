@@ -1,11 +1,13 @@
 
+<div class="container pt-3 pb-5">
 
-<h2><%= @h.nome %></h2>
-<h2><%= @h.matricula %></h2>
+  <%= form_tag(upload_path, multipart: true) do %>
+    <%= file_field_tag 'historico', accept: '.pdf', class: '', required: true %>
+    <%= submit_tag "Upload", class: 'btn btn-secondary' %>
+  <% end %>
 
-<% if @pdf_verified %>
-  <div class="container pt-3 pb-5">
-    <div class="card text-center pb-4">
+  <% if @pdf_verified %>
+    <div class="">
       <div class="card-header">
         <ul class="nav nav-pills card-header-tabs" id="myTab" role="tablist">
           <li class="nav-item">
@@ -19,10 +21,13 @@
         </ul>
       </div>
 
-      <div class="tab-content" id="myTabContent">
-        <h5 class="card-title text-center mt-3"><%= @h.nome %></h5>
-        <h5><%= @h.matricula %></h5>
-        <div class="tab-pane fade show active" id="geral" role="tabpanel" aria-labelledby="geral-tab">
+      <div class="tab-content px-3" id="myTabContent">
+        <div class="d-flex justify-content-between pt-3 pb-1">
+          <h4>Nome: <%= @h.nome %></h4>
+          <h4>Matrícula: <%= @h.matricula %></h4>
+        </div>
+
+        <div class="tab-pane fade show active text-center" id="geral" role="tabpanel" aria-labelledby="geral-tab">
           Colocar aqui informações gerais...
         </div>
         <% @unique_ano_per.each_with_index do |ano_per, index| %>
@@ -32,7 +37,7 @@
         <% end %>
       </div>
     </div>
-  </div>
-<% else %>
-  <p>O arquivo selecionado não foi idendificado como um histórico válido do SIGAA.</p>
-<% end %>
+  <% else %>
+    <p>O arquivo selecionado não foi idendificado como um histórico válido do SIGAA.</p>
+  <% end %>
+</div>
