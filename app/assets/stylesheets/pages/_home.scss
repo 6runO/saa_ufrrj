@@ -1,1 +1,13 @@
 // Specific CSS for your home-page
+
+.upload-input {
+  display: none;
+}
+
+.btn-escolher-arquivo {
+ border: 1px solid $dark;
+}
+
+.btn-escolher-arquivo:hover {
+  background-color: rgb(230, 230, 230);
+}

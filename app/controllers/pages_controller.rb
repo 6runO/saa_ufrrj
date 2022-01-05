@@ -12,7 +12,7 @@ class PagesController < ApplicationController
     elsif File.extname(params[:historico].path) != ".pdf"
       redirect_to root_path, notice: "Apenas são aceitos arquivos em formato PDF."
     elsif (File.size(params[:historico].path).to_f / 2**20).round(3) > 0.300
-      redirect_to root_path, notice: "O arquivo selecionado não pode ter mais que 2 MB (Mega Bytes)."
+      redirect_to root_path, notice: "O arquivo selecionado não pode ter mais que 2MB."
     else
       parse_uploaded_file
     end
