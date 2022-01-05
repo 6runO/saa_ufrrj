@@ -5,7 +5,7 @@
   font-weight: bold;
 }
 
-.text-pink {
+.color-title {
   color: #F7CB15;
   // color: #FFB20F;
 }
@@ -14,8 +14,9 @@
   color: white;
 }
 
-.small-font {
-  font-size: 15px;
+.preview-display {
+  font-size: 14px;
+  opacity: 0.7;
 }
 
 .upload-input {
@@ -39,11 +40,22 @@
   background-image: image-url("unsplash1");
   background-size: cover;
   background-position: center;
-  padding: 15vh 0;
   height: 100vh;
   // height: calc(100vh - 64px);
 }
 
+.banner .container {
+  padding: 15vh 0;
+}
+
 .form-box {
   padding: 15vh 0 0 0;
+}
+
+.btn-hidden {
+  display: none;
+}
+
+.btn-shown {
+  display: inline;
 }

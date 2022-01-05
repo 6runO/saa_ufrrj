@@ -1,6 +1,7 @@
 const uploadForm = () => {
   const input = document.querySelector('.upload-input');
   const preview = document.querySelector('.preview');
+  const submitBtn = document.querySelector('.btn-analisar');
 
   input.addEventListener('change', updateImageDisplay);
 
@@ -16,15 +17,23 @@ const uploadForm = () => {
     if (curFiles.length === 0) {
       para.textContent = 'Nenhum arquivo selecionado.';
       preview.appendChild(para);
+      submitBtn.classList.remove('btn-shown');
+      submitBtn.classList.add('btn-hidden');
     } else if (invalidFileType(file)) {
       para.textContent = `O tipo do arquivo selecionado não é válido.`;
       preview.appendChild(para);
+      submitBtn.classList.remove('btn-shown');
+      submitBtn.classList.add('btn-hidden');
     } else if ((file.size / 1048576) > 2) {
       para.textContent = `O arquivo selecionado excede o tamanho máximo permitido (2MB).`;
       preview.appendChild(para);
+      submitBtn.classList.remove('btn-shown');
+      submitBtn.classList.add('btn-hidden');
     } else {
-      para.textContent = `Nome: ${file.name}, Tamanho: ${returnFileSize(file.size)}.`;
+      para.textContent = file.name;
       preview.appendChild(para);
+      submitBtn.classList.remove('btn-hidden');
+      submitBtn.classList.add('btn-shown');
     };
   };
 

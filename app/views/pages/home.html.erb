@@ -1,21 +1,22 @@
 <div class="banner">
+  <%= render 'shared/navbar' %>
+  <div class="container px-3">
+    <h2 class="color-title">Sistema de Análise Acadêmica 5.0</h2>
+    <h5 class="color-title text-subtitle">Residência Estudantil: reduzindo distâncias, ampliando horizontes...</h5>
 
-<div class="container">
-  <h2 class="text-pink">Sistema de Análise Acadêmica 5.0</h2>
-  <h5 class="text-pink text-subtitle">Residência Estudantil: reduzindo distâncias, ampliando horizontes...</h5>
-
-  <div class="text-center form-box">
-    <p class="text-light m-0 pb-2">Selecione o arquivo em PDF do histórico a ser analisado:</p>
-    <%= form_tag(upload_path, multipart: true) do %>
-      <div>
-        <%= label_tag 'historico', 'Escolher Arquivo', class: 'btn btn-escolher-arquivo mb-3' %>
-        <%= file_field_tag 'historico', accept: '.pdf', class: 'upload-input', required: true %>
-      </div>
-      <div class="preview text-light small-font">
-      </div>
-      <div>
-        <%= submit_tag "Analisar", class: 'btn btn-success' %>
-      </div>
-    <% end %>
-  </div>
-<div>
+    <div class="text-center form-box">
+      <%# <p class="text-light m-0 pb-2">Selecione o arquivo em PDF do histórico a ser analisado:</p> %>
+      <%= form_tag(upload_path, multipart: true) do %>
+        <div>
+          <%= label_tag 'historico', 'Escolher Histórico para Análise', class: 'btn btn-escolher-arquivo mb-2' %>
+          <%= file_field_tag 'historico', accept: '.pdf', class: 'upload-input', required: true %>
+        </div>
+        <div class="preview text-light preview-display">
+        </div>
+        <div>
+          <%= submit_tag "Analisar", class: 'btn btn-success btn-hidden btn-analisar' %>
+        </div>
+      <% end %>
+    </div>
+  <div>
+</div>
