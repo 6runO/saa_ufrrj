@@ -1,0 +1,15 @@
+// .text-dark {
+//   color: $dark;
+// }
+
+.btn-preto-brilhante {
+ border: 1px solid black;
+ color: black;
+}
+
+.btn-preto-brilhante:hover {
+  // background-color: rgb(230, 230, 230);
+  color: black;
+  text-shadow: 0 0 1px rgba(0,0,0,0.2);
+  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+}

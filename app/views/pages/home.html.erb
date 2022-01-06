@@ -8,13 +8,13 @@
       <%# <p class="text-light m-0 pb-2">Selecione o arquivo em PDF do histórico a ser analisado:</p> %>
       <%= form_tag(upload_path, multipart: true) do %>
         <div>
-          <%= label_tag 'historico', 'Escolher Histórico para Análise', class: 'btn btn-escolher-arquivo mb-2' %>
+          <%= label_tag 'historico', 'Escolher Histórico para Análise', class: 'btn btn-branco-brilhante mb-2' %>
           <%= file_field_tag 'historico', accept: '.pdf', class: 'upload-input', required: true %>
         </div>
         <div class="preview text-light preview-display">
         </div>
         <div>
-          <%= submit_tag "Analisar", class: 'btn btn-success btn-hidden btn-analisar' %>
+          <%= submit_tag "Analisar", class: 'btn btn-success btn-hidden btn-analisar mt-3' %>
         </div>
       <% end %>
     </div>

@@ -11,8 +11,9 @@ const uploadForm = () => {
     };
 
     const curFiles = input.files;
-    const file = curFiles[0]
+    const file = curFiles[0];
     const para = document.createElement('p');
+    para.classList.add('m-0');
 
     if (curFiles.length === 0) {
       para.textContent = 'Nenhum arquivo selecionado.';
@@ -30,7 +31,8 @@ const uploadForm = () => {
       submitBtn.classList.remove('btn-shown');
       submitBtn.classList.add('btn-hidden');
     } else {
-      para.textContent = file.name;
+      const fileName = (file.name.length <= 28) ? (file.name) : (file.name.substring(0, 24) + "...")
+      para.textContent = fileName;
       preview.appendChild(para);
       submitBtn.classList.remove('btn-hidden');
       submitBtn.classList.add('btn-shown');
