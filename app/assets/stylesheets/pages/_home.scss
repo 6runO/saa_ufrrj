@@ -1,61 +1,6 @@
 // Specific CSS for your home-page
 
-.text-subtitle {
-  text-shadow: 0 0 3px rgba(250,250,250,0.5);
-  font-weight: bold;
-}
 
-.color-title {
-  color: #F7CB15;
-  // color: #FFB20F;
-}
 
-.text-light {
-  color: white;
-}
 
-.preview-display {
-  font-size: 14px;
-  opacity: 0.7;
-}
 
-.upload-input {
-  display: none;
-}
-
-.btn-branco-brilhante {
- border: 1px solid white;
- color: white;
-}
-
-.btn-branco-brilhante:hover {
-  // background-color: rgb(230, 230, 230);
-  color: white;
-  text-shadow: 0 0 3px rgba(250,250,250,0.5);
-  box-shadow: 0 0 5px rgba(250,250,250,0.8);;
-}
-
-.banner {
-  // background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), image-url("unsplash2");
-  background-image: image-url("unsplash1");
-  background-size: cover;
-  background-position: center;
-  height: 100vh;
-  // height: calc(100vh - 64px);
-}
-
-.banner .container {
-  padding: 13vh 0 0 0;
-}
-
-.form-box {
-  padding: 15vh 0 0 0;
-}
-
-.btn-hidden {
-  display: none;
-}
-
-.btn-shown {
-  display: inline;
-}

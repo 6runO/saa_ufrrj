@@ -1,6 +1,11 @@
-<div class="container py-0">
+<% if current_page?(root_path) %>
   <nav class="navbar navbar-expand-sm navbar-dark">
-    <a class="navbar-brand" href=<% link_to root_path %>>
+<% else %>
+  <nav class="navbar navbar-expand-sm navbar-light navbar-colored">
+<% end %>
+
+  <div class="container py-0">
+    <a class="navbar-brand nav-logo" href=<% link_to root_path %>>
       <i class="fas fa-university"></i>
       SAA 5.0
     </a>
@@ -9,16 +14,17 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
       <ul class="navbar-nav ml-auto">
-        <%# <li class="nav-item active">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        <%# <li class="nav-item pr-2 active">
+          <a class="nav-link" href="">Home <span class="sr-only">(current)</span></a>
         </li> %>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Normativas</a>
+        <li class="nav-item pr-2">
+          <a class="nav-link" href="">Normativas</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Sobre</a>
+          <a class="nav-link" href="">Sobre</a>
         </li>
       </ul>
     </div>
-  </nav>
-</div>
+  </div>
+
+</nav>

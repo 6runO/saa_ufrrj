@@ -10,3 +10,13 @@
 .navbar-lewagon .navbar-brand img {
   width: 40px;
 }
+
+.navbar-colored {
+  // background-color: #F7CB15;
+  // background-color: #F7B115;
+  background-color: $success;
+}
+
+.nav-logo {
+  color: rgba(0,0,0,0.5);
+}
