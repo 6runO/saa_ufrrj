@@ -6,6 +6,12 @@ class PagesController < ApplicationController
   def home
   end
 
+  def normativa
+  end
+
+  def about
+  end
+
   def upload
     if params[:historico].blank?
       redirect_to root_path, notice: "O campo de upload não pode estar vazio."

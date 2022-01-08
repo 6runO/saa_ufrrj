@@ -1,14 +1,16 @@
 <% if current_page?(root_path) %>
   <nav class="navbar navbar-expand-sm navbar-dark">
+    <div class="container py-0 container-navbar-banner">
 <% else %>
   <nav class="navbar navbar-expand-sm navbar-light navbar-colored">
+    <div class="container py-0">
 <% end %>
 
-  <div class="container py-0">
-    <a class="navbar-brand nav-logo" href=<% link_to root_path %>>
+
+    <%= link_to root_path, class:"navbar-brand nav-logo" do %>
       <i class="fas fa-university"></i>
       SAA 5.0
-    </a>
+    <% end %>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -17,11 +19,15 @@
         <%# <li class="nav-item pr-2 active">
           <a class="nav-link" href="">Home <span class="sr-only">(current)</span></a>
         </li> %>
-        <li class="nav-item pr-2">
-          <a class="nav-link" href="">Normativas</a>
+        <li class="nav-item pr-2 <%= 'active' if current_page?(normativa_path) %>">
+          <%= link_to normativa_path, class:"nav-link" do %>Normativas
+            <%= (content_tag :span, "(current)", :class => "sr-only") if current_page?(normativa_path) %>
+          <% end %>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="">Sobre</a>
+        <li class="nav-item <%= 'active' if current_page?(about_path) %>">
+          <%= link_to about_path, class:"nav-link" do %>Sobre
+            <%= (content_tag :span, "(current)", :class => "sr-only") if current_page?(about_path) %>
+          <% end %>
         </li>
       </ul>
     </div>
