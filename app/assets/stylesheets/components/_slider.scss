@@ -1,12 +1,14 @@
-.carousel-inner .carousel-item {
-  height: 300px !important;
+.carousel-inner {
+  // width:100%;
+  // max-height: 300px !important;
 }
 
 .carousel-item img {
-    position: absolute !important;
-    object-fit:cover !important;
-    top: 0 !important;
-    left: 0 !important;
-    min-height: 300px !important;
-    width: 300px !important;
+  // width: 100%;
+
+  // position: absolute;
+  // object-fit: cover;
+  // top: 0;
+  // left: 0;
+  // min-height: 300px;
 }
