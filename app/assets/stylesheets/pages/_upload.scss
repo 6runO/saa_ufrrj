@@ -1,3 +1,9 @@
 .tab-content h5 {
   font-size: 1rem;
 }
+
+@media (max-width: 575px) {
+  .tab-content h5 {
+    font-size: 0.8rem
+  }
+}

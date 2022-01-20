@@ -2,9 +2,6 @@ require_relative "../models/historico"
 require 'tempfile'
 require 'csv'
 
-#### Uncomment for testing purposes
-require 'pdf-reader'
-
 class PagesController < ApplicationController
   def home
   end
@@ -16,31 +13,15 @@ class PagesController < ApplicationController
   end
 
   def upload
-    #### Comment for testing purposes
-    # if params[:historico].blank?
-    #   redirect_to root_path, notice: "O campo de upload não pode estar vazio."
-    # elsif File.extname(params[:historico].path) != ".pdf"
-    #   redirect_to root_path, notice: "Apenas são aceitos arquivos em formato PDF."
-    # elsif (File.size(params[:historico].path).to_f / 2**20).round(3) > 0.300
-    #   redirect_to root_path, notice: "O arquivo selecionado não pode ter mais que 2MB."
-    # else
-    #   parse_uploaded_file
-    # end
-
-    #### Uncomment for testing purposes
-    reader = PDF::Reader.new(params[:historico].path)
-    page_one = reader.page(1).text
-    page_one.each_line do |line|
-      data = line.split
-      (@nome = data[(data.index("Nome:") + 1)..(data.index("Matrícula:") - 1)].join(' ')) if line["Nome:"]
+    if params[:historico].blank?
+      redirect_to root_path, notice: "O campo de upload não pode estar vazio."
+    elsif File.extname(params[:historico].path) != ".pdf"
+      redirect_to root_path, notice: "Apenas são aceitos arquivos em formato PDF."
+    elsif (File.size(params[:historico].path).to_f / 2**20).round(3) > 0.300
+      redirect_to root_path, notice: "O arquivo selecionado não pode ter mais que 2MB."
+    else
+      parse_uploaded_file
     end
-      # (@nome = data[(data.index("Nome:") + 1)..(data.index("Matrícula:") - 1)].join(' ')) if line["Nome:"]
-    puts page_one
-    puts "O nome do cidadão é: #{@nome}"
-    10.times do
-      puts "####"
-    end
-    redirect_to root_path
   end
 
   private
@@ -53,7 +34,6 @@ class PagesController < ApplicationController
       @h.parse_pdf(params[:historico].path, temp.path)
       # h.parse_pdf(Rails.root.join "app", "assets", "images", "historico_2015070166.pdf")
       historico_csv_analysis(temp.path)
-      # redirect_to root_path
     end
     temp.unlink
   end
