@@ -33,13 +33,23 @@ class PagesController < ApplicationController
     if @pdf_verified
       @h.parse_pdf(params[:historico].path, temp.path)
       # h.parse_pdf(Rails.root.join "app", "assets", "images", "historico_2015070166.pdf")
-      historico_csv_analysis(temp.path)
+      csv = CSV.read(temp.path, headers: true)
+      csv_analysis_by_table(csv)
     end
     temp.unlink
   end
 
-  def historico_csv_analysis(csv_path)
-    csv = CSV.read(csv_path, headers: true)
+  def csv_analysis_by_table(csv)
     @unique_ano_per = csv["ano_per"].uniq.sort
+    @unique_ano_per.each do |ano_per|
+
+      csv_analysis_by_line(csv, ano_per)
+    end
+  end
+
+  def csv_analysis_by_line(csv, ano_per)
+    csv.each do |row|
+
+    end
   end
 end

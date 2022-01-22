@@ -97,9 +97,15 @@ class Historico
     page = reader.page(table_page).text
     find_string = "Carga Horária Integralizada/Pendente"
     look_for_from = page.index(find_string) + find_string.length
-    start_from = page.index("Exigido", look_for_from) + 7
-    stop_at = page.index("Integralizado", look_for_from) - 1
-    exigido = page[start_from..stop_at]
+    start_from = page.index("Exigido", look_for_from)
+    if start_from
+      start_from += 7
+    else
+      page = reader.page(table_page + 1).text
+      start_from = page.index("Exigido", look_for_from) + 7
+    end
+    # stop_at = page.index("Integralizado", look_for_from) - 1
+    exigido = page[start_from..(start_from + 100)]
     exigido.slice!("h")
     exigido = exigido.split
     @exigido = exigido[0].to_i + exigido[1].to_i
