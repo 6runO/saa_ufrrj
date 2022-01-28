@@ -7,26 +7,20 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 
-#testes
-require_relative "../app/models/historico"
+#### testes
+# require_relative "../app/models/historico"
 require 'csv'
 
 # pdf_path = "../scrap/historico_20200038248.pdf"
-pdf_path = "app/assets/images/historico_2015070166.pdf"
-# pdf_path = Rails.root.join "app", "assets", "images", "historico_2015070166.pdf"
+# pdf_path = "app/assets/images/historico_2015070166.pdf"
+# csv_path = Rails.root.join "app", "csv", "historico.csv"
 csv_path = "app/csv/historico.csv"
-
-h = Historico.new
-
-result = h.pdf_is_historico?(pdf_path)
-
-h.parse_pdf(pdf_path, csv_path)
 
 csv = CSV.read(csv_path, headers: true)
 
-unique_ano_per = csv["ano_per"].uniq
+periodo = csv.select { |row| row["ano_per"] == "2015.2" }
+rep = periodo.select { |row| row["situacao"] == "fdgf4" }
 
-puts unique_ano_per
-puts h.nome
-puts h.matricula
-puts result
+# puts periodo.class
+puts periodo.size
+print rep.first + 2
