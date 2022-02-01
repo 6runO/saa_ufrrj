@@ -36,14 +36,35 @@ class PagesController < ApplicationController
     @pdf_verified = @h.pdf_is_historico?(params[:historico].path)
     if @pdf_verified
       @h.parse_pdf(params[:historico].path, temp.path)
-      # h.parse_pdf(Rails.root.join "app", "assets", "images", "historico_2015070166.pdf")
       csv = CSV.read(temp.path, headers: true)
-      csv_analysis_by_table(csv)
+      call_global_variables
+      csv_analysis(csv)
     end
     temp.unlink
   end
 
-  def csv_analysis_by_table(csv)
+  def call_global_variables
+    @hrs_aproveitado_regulares = []
+    @hrs_aproveitado_atividades = []
+    @hrs_apr_regulares = []
+    @hrs_apr_eletivas = []
+    @hrs_apr_atividades = []
+    @hrs_rep_media_regulares_eletivas = []
+    @hrs_rep_media_atividades = []
+    @hrs_rep_falta_regulares_eletivas = []
+    @hrs_rep_falta_atividades = []
+    @hrs_matriculado_regulares = []
+    @hrs_matriculado_eletivas = []
+    @hrs_matriculado_atividades = []
+    @num_rep_falta_regulares_eletivas = []
+    @num_trancado = []
+    @num_cancelado = []
+    @hrs_cursado_regulares_eletivas = []
+    @cr = []
+    @ira = []
+  end
+
+  def csv_analysis(csv)
     @unique_ano_per = csv["ano_per"].uniq.sort
     @unique_ano_per.each do |ano_per|
       csv_ano_per = csv.select { |row| row["ano_per"] }
@@ -54,61 +75,56 @@ class PagesController < ApplicationController
       situacoes_rep_falta = ["REPF", "REPMF", "REPNF"]
       #### As situações matriculado, trancado e cancelado não precisam de array, pois só possuem um item
 
-      aproveitado = csv_ano_per.select { |row| situacoes_aproveitado.include?(row['situacao']) }
-      apr = csv_ano_per.select { |row| situacoes_apr.include?(row['situacao']) }
-      rep_media = csv_ano_per.select { |row| situacoes_rep_media.include?(row['situacao']) }
-      rep_falta = csv_ano_per.select { |row| situacoes_rep_falta.include?(row['situacao']) }
-      matriculado = csv_ano_per.select { |row| row["situacao"] == "MATRICULADO" }
-      trancado = csv_ano_per.select { |row| row["situacao"] == "TRANCADO" }
-      cancelado = csv_ano_per.select { |row| row["situacao"] == "CANCELADO" }
-
       tipos_regulares = ["", "*", "e", "&"]
       tipos_atividades = ["@", "§"]
       #### O tipo eletivo não precisa de array, pois só possui um item
 
-      aproveitado_regulares = aproveitado.select { |row| tipos_regulares.include?(row['tipo']) }
-      aproveitado_atividades = aproveitado.select { |row| tipos_atividades.include?(row['tipo']) }
-      apr_regulares = apr.select { |row| tipos_regulares.include?(row['tipo']) }
-      apr_eletivas = apr.select { |row| row["tipo"] == "#" }
-      apr_atividades = apr.select { |row| tipos_atividades.include?(row['tipo']) }
-      rep_media_regulares_eletivas = rep_media.select { |row| row["media"] != "--" }
-      rep_media_atividades = rep_media.select { |row| row["media"] == "--" }
-      rep_falta_regulares_eletivas = rep_falta.select { |row| row["media"] != "--" }
-      rep_falta_atividades = rep_falta.select { |row| row["media"] == "--" }
-      matriculado_regulares = matriculado.select { |row| tipos_regulares.include?(row['tipo']) }
-      matriculado_eletivas = matriculado.select { |row| row["tipo"] == "#" }
-      matriculado_atividades = matriculado.select { |row| tipos_atividades.include?(row['tipo']) }
-      #### Os arrays trancado e cancelado já estão prontos, pois não precisam ser filtrados quanto ao tipo
+      aproveitado_regulares = csv_ano_per.select { |row| situacoes_aproveitado.include?(row['situacao']) && tipos_regulares.include?(row['tipo']) }
+      aproveitado_atividades = csv_ano_per.select { |row| situacoes_aproveitado.include?(row['situacao']) && tipos_atividades.include?(row['tipo']) }
+      apr_regulares = csv_ano_per.select { |row| situacoes_apr.include?(row['situacao']) && tipos_regulares.include?(row['tipo']) }
+      apr_eletivas = csv_ano_per.select { |row| situacoes_apr.include?(row['situacao']) && row["tipo"] == "#" }
+      apr_atividades = csv_ano_per.select { |row| situacoes_apr.include?(row['situacao']) && tipos_atividades.include?(row['tipo']) }
+      rep_media_regulares_eletivas = csv_ano_per.select { |row| situacoes_rep_media.include?(row['situacao']) && row["media"] != "--" }
+      rep_media_atividades = csv_ano_per.select { |row| situacoes_rep_media.include?(row['situacao']) && row["media"] == "--" }
+      rep_falta_regulares_eletivas = csv_ano_per.select { |row| situacoes_rep_falta.include?(row['situacao']) && row["media"] != "--" }
+      rep_falta_atividades = csv_ano_per.select { |row| situacoes_rep_falta.include?(row['situacao']) && row["media"] == "--" }
+      matriculado_regulares = csv_ano_per.select { |row| row["situacao"] == "MATRICULADO" && tipos_regulares.include?(row['tipo']) }
+      matriculado_eletivas = csv_ano_per.select { |row| row["situacao"] == "MATRICULADO" && row["tipo"] == "#" }
+      matriculado_atividades = csv_ano_per.select { |row| row["situacao"] == "MATRICULADO" && tipos_atividades.include?(row['tipo']) }
+      trancado = csv_ano_per.select { |row| row["situacao"] == "TRANCADO" }
+      cancelado = csv_ano_per.select { |row| row["situacao"] == "CANCELADO" }
 
+      @hrs_aproveitado_regulares << (aproveitado_regulares.sum(0) { |row| row["ch"].to_i })
+      @hrs_aproveitado_atividades << aproveitado_atividades.sum(0) { |row| row["ch"].to_i }
+      @hrs_apr_regulares << apr_regulares.sum(0) { |row| row["ch"].to_i }
+      @hrs_apr_eletivas << apr_eletivas.sum(0) { |row| row["ch"].to_i }
+      @hrs_apr_atividades << apr_atividades.sum(0) { |row| row["ch"].to_i }
+      @hrs_rep_media_regulares_eletivas << rep_media_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
+      @hrs_rep_media_atividades << rep_media_atividades.sum(0) { |row| row["ch"].to_i }
+      @hrs_rep_falta_regulares_eletivas << rep_falta_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
+      @hrs_rep_falta_atividades << rep_falta_atividades.sum(0) { |row| row["ch"].to_i }
+      @hrs_matriculado_regulares << matriculado_regulares.sum(0) { |row| row["ch"].to_i }
+      @hrs_matriculado_eletivas << matriculado_eletivas.sum(0) { |row| row["ch"].to_i }
+      @hrs_matriculado_atividades << matriculado_atividades.sum(0) { |row| row["ch"].to_i }
+      @num_rep_falta_regulares_eletivas << rep_falta_regulares_eletivas.size
+      @num_trancado << trancado.size
+      @num_cancelado << cancelado.size
 
-
-      @hrs_aproveitado_regulares =
-      @hrs_aproveitado_atividades =
-      @hrs_apr_regulares =
-      @hrs_apr_eletivas =
-      @hrs_apr_atividades =
-      @hrs_rep_media_regulares_eletivas =
-      @hrs_rep_media_atividades =
-      @hrs_rep_falta_regulares_eletivas =
-      @hrs_rep_falta_atividades =
-      @hrs_matriculado_regulares =
-      @hrs_matriculado_eletivas =
-      @hrs_matriculado_atividades =
-      @num_rep_falta_regulares_eletivas =
-      @num_trancado
-      @num_cancelado
-
-      #cr e índices
-
-      csv_analysis_by_line(csv, ano_per)
+      csv_analysis_indexes(csv, ano_per, csv_ano_per)
     end
   end
 
-  def csv_analysis_by_line(csv, ano_per)
-    csv.each do |row|
-      # ira
+  def csv_analysis_indexes(csv, ano_per, csv_ano_per)
+    @hrs_cursado_regulares_eletivas << @hrs_apr_regulares + @hrs_apr_eletivas + @hrs_rep_media_regulares_eletivas + @hrs_rep_falta_regulares_eletivas
 
+    cr_rows = csv_ano_per.select { |row| numeric?(row["media"][0]) }
+    ch_sum = cr_rows.sum(0.0) { |row| (row["media"].gsub(",", ".").to_f) * row["ch"].to_i  }
+    cr = cr_rows.empty? ? 0.0 : (ch_sum / (cr_rows.sum(0) { |row| row["ch"].to_i })).round(2)
+    @cr << cr
 
-    end
+    ira_rows = csv.select { |row| numeric?(row["media"][0]) && row["ano_per"] <= ano_per }
+    ch_sum = ira_rows.sum(0.0) { |row| (row["media"].gsub(",", ".").to_f) * row["ch"].to_i  }
+    ira = ira_rows.empty? ? 0.0 : (ch_sum / (ira_rows.sum(0) { |row| row["ch"].to_i })).round(2)
+    @ira << ira
   end
 end

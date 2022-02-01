@@ -41,6 +41,8 @@
         <% @unique_ano_per.each_with_index do |ano_per, index| %>
           <div class="tab-pane fade text-center" id=<%= "per-#{index}" %> role="tabpanel" aria-labelledby=<%= "tab-#{index}" %>>
             Informações sobre o período <%= ano_per %>
+            <p>Hrs APR: <%= @hrs_apr_regulares[index - 1] %></p>
+            <p>IRA: <%= @ira[index - 1] %></p>
           </div>
         <% end %>
       </div>

@@ -19,8 +19,25 @@ csv_path = "app/csv/historico.csv"
 csv = CSV.read(csv_path, headers: true)
 
 periodo = csv.select { |row| row["ano_per"] == "2015.2" }
-rep = periodo.select { |row| row["situacao"] == "fdgf4" }
+rep = periodo.select { |row| row["situacao"] == "fsdfsd" }
 
-# puts periodo.class
-puts periodo.size
-print rep.first + 2
+# teste1 = periodo.map { |row| row["media"] }.sum { |e| e.gsub(",", ".").to_f }
+teste1 = periodo.sum(0.0) { |row| row["media"].gsub(",", ".").to_f }
+
+teste2 = rep.sum(0) { |row| row["ch"].to_i }
+
+puts "\n"
+
+def numeric?(string)
+  Float(string) != nil rescue false
+end
+
+cr_rows = periodo.select { |row| numeric?(row["media"][0]) }
+ch_sum = cr_rows.sum(0.0) { |row| (row["media"].gsub(",", ".").to_f) * row["ch"].to_i  }
+cr = (ch_sum / (cr_rows.sum(0) { |row| row["ch"].to_i })).round(2)
+puts cr
+
+ira_rows = csv.select { |row| numeric?(row["media"][0]) && row["ano_per"] <= "2015.2" }
+ch_sum = ira_rows.sum(0.0) { |row| (row["media"].gsub(",", ".").to_f) * row["ch"].to_i  }
+ira = (ch_sum / (ira_rows.sum(0) { |row| row["ch"].to_i })).round(2)
+puts ira
