@@ -60,6 +60,7 @@ class PagesController < ApplicationController
     @num_trancado = []
     @num_cancelado = []
     @hrs_cursado_regulares_eletivas = []
+    @ratio_apr = []
     @cr = []
     @ira = []
   end
@@ -97,20 +98,26 @@ class PagesController < ApplicationController
       @hrs_aproveitado_regulares << aproveitado_regulares.sum(0) { |row| row["ch"].to_i }
       @hrs_aproveitado_atividades << aproveitado_atividades.sum(0) { |row| row["ch"].to_i }
 
-      @hrs_apr_regulares = apr_regulares.sum(0) { |row| row["ch"].to_i }
-      @hrs_apr_eletivas = apr_eletivas.sum(0) { |row| row["ch"].to_i }
-
+      hrs_apr_regulares = apr_regulares.sum(0) { |row| row["ch"].to_i }
+      hrs_apr_eletivas = apr_eletivas.sum(0) { |row| row["ch"].to_i }
+      hrs_apr_regulares_eletivas = hrs_apr_regulares + hrs_apr_eletivas
+      @hrs_apr_regulares << hrs_apr_regulares
+      @hrs_apr_eletivas << hrs_apr_eletivas
+      @hrs_apr_regulares_eletivas = []
+      @hrs_apr_regulares_eletivas << hrs_apr_regulares_eletivas
 
       @hrs_apr_atividades << apr_atividades.sum(0) { |row| row["ch"].to_i }
-      @hrs_apr_regulares_eletivas = @hrs_apr_regulares + @hrs_apr_eletivas
 
-      @hrs_rep_media_regulares_eletivas << rep_media_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
+      hrs_rep_media_regulares_eletivas = rep_media_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
+      @hrs_rep_media_regulares_eletivas << hrs_rep_media_regulares_eletivas
       @hrs_rep_media_atividades << rep_media_atividades.sum(0) { |row| row["ch"].to_i }
 
-      @hrs_rep_falta_regulares_eletivas << rep_falta_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
+      hrs_rep_falta_regulares_eletivas = rep_falta_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
+      @hrs_rep_falta_regulares_eletivas << hrs_rep_falta_regulares_eletivas
       @hrs_rep_falta_atividades << rep_falta_atividades.sum(0) { |row| row["ch"].to_i }
 
-      @hrs_cursado_regulares_eletivas
+      hrs_cursado_regulares_eletivas = hrs_apr_regulares_eletivas + hrs_rep_media_regulares_eletivas + hrs_rep_falta_regulares_eletivas
+      @hrs_cursado_regulares_eletivas << hrs_cursado_regulares_eletivas
 
       @hrs_matriculado_regulares << matriculado_regulares.sum(0) { |row| row["ch"].to_i }
       @hrs_matriculado_eletivas << matriculado_eletivas.sum(0) { |row| row["ch"].to_i }
@@ -121,13 +128,17 @@ class PagesController < ApplicationController
       @num_trancado << trancado.size
       @num_cancelado << cancelado.size
 
-      csv_analysis_indexes(csv, ano_per, csv_ano_per, situacoes_rep_falta)
+      csv_analysis_percent_apr(hrs_apr_regulares_eletivas, hrs_cursado_regulares_eletivas)
+      csv_analysis_cr_ira(csv, ano_per, csv_ano_per, situacoes_rep_falta)
     end
   end
 
-  def csv_analysis_indexes(csv, ano_per, csv_ano_per, situacoes_rep_falta)
-    @hrs_cursado_regulares_eletivas << @hrs_apr_regulares + @hrs_apr_eletivas + @hrs_rep_media_regulares_eletivas + @hrs_rep_falta_regulares_eletivas
+  def csv_analysis_percent_apr(hrs_apr_regulares_eletivas, hrs_cursado_regulares_eletivas)
+    ratio_apr = hrs_cursado_regulares_eletivas == 0 ? 0 : ((hrs_apr_regulares_eletivas / hrs_cursado_regulares_eletivas).round(3))
+    @ratio_apr << ratio_apr
+  end
 
+  def csv_analysis_cr_ira(csv, ano_per, csv_ano_per, situacoes_rep_falta)
     cr_rows = csv_ano_per.select { |row| numeric?(row["media"][0]) }
     ch_sum = cr_rows.sum(0.0) { |row| situacoes_rep_falta.include?(row["situacao"]) ? 0 : ((row["media"].gsub(",", ".").to_f) * row["ch"].to_i) }
     cr = cr_rows.empty? ? 0.0 : (ch_sum / (cr_rows.sum(0) { |row| row["ch"].to_i })).round(2)
