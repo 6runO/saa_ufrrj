@@ -37,30 +37,57 @@
 
         <hr class="my-1">
 
-        <div class="d-sm-flex justify-content-between my-2">
+        <div class="d-sm-flex justify-content-between my-3">
           <h5 class="my-0">Nome: <%= @h.nome %></h5>
           <h5 class="my-0">Matrícula: <%= @h.matricula %></h5>
         </div>
 
-        <hr class="my-1">
+        <%# <hr class="my-1"> %>
 
         <div class="tab-pane fade show active" id="geral" role="tabpanel" aria-labelledby="geral-tab">
           Colocar aqui informações gerais...
         </div>
         <% @unique_ano_per.each_with_index do |ano_per, index| %>
-          <div class="tab-pane fade d-flex" id=<%= "per-#{index}" %> role="tabpanel" aria-labelledby=<%= "tab-#{index}" %>>
-            <div class="indices-gerais flex-grow-1 shadow p-3 mr-sm-4">
-              <h5 class="my-0 text-center py-2 bg-light">Índices Gerais</h5>
-              <div class="d-inline-flex">
-                <p>IRA: </p><div><p><%= @ira[index] %></p></div>
+          <div class="tab-pane fade" id=<%= "per-#{index}" %> role="tabpanel" aria-labelledby=<%= "tab-#{index}" %>>
+            <div class="d-sm-flex">
+              <div class="indices-box flex-grow-1 pb-2 mr-sm-4">
+                <h5 class="indices-box-title text-center py-1">Índices Gerais</h5>
+                <div class="mx-1 mx-sm-2 mx-lg-5">
+                  <div class="row justify-content-between">
+                    <div class="col-auto">
+                      <div class="d-flex">
+                        <p class="mr-1">IRA: </p>
+                        <div><p class="data-box"><%= @ira[index] %></p></div>
+                      </div>
+                    </div>
+                    <div class="col-auto">
+                      <div class="d-flex">
+                        <p class="mr-1">% APR: </p>
+                        <div><p class="data-box"><%= number_to_percentage(@ratio_apr[index] * 100, precision: 1) %></p></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <p><%= number_to_percentage(@ratio_apr[index] * 100, precision: 1) %></p>
-            </div>
 
-            <div class="contrapartida-proaes flex-grow-1 shadow p-3">
-              <h5 class="my-0 text-center py-2 bg-light">Índices Gerais</h5>
-              <div class="d-inline-flex">
-                <p>Hrs APR: </p><div><p><%= @hrs_apr_regulares[index] %></p></div>
+              <div class="indices-box flex-grow-1 pb-2">
+                <h5 class="indices-box-title text-center py-1">Contrapartida Proaes</h5>
+                <div class="mx-1 mx-sm-2 mx-lg-5">
+                  <div class="row justify-content-between">
+                    <div class="col">
+                      <div class="d-flex">
+                        <p class="mr-1">Hrs APR: </p>
+                        <div><p class="data-box"><%= @hrs_apr_regulares[index] %></p><p class="data-box-curso">jhghjg</p></div>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="d-flex">
+                        <p class="mr-1">Hrs REP: </p>
+                        <div><p class="data-box"><%= @hrs_rep_media_regulares_eletivas[index] %></p></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

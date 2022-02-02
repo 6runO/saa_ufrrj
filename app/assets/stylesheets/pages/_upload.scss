@@ -8,6 +8,16 @@
   }
 }
 
+.indices-box p {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 767px) {
+  .indices-box p {
+    font-size: 0.8rem
+  }
+}
+
 .check-boxes label {
   font-size: 0.8rem;
   vertical-align: middle;
@@ -15,4 +25,25 @@
 
 .check-boxes input {
   vertical-align: middle;
+}
+
+.indices-box {
+  border: 1px solid rgb(220, 220, 220);
+}
+
+.indices-box-title {
+  background-color: rgb(220, 220, 220);
+  font-weight: bold;
+}
+
+.data-box {
+  border: 1px solid rgb(150, 150, 150);
+  padding: 0 8px;
+  margin: 0;
+}
+
+.data-box-curso {
+  background-color: $info;
+  padding: 0 8px;
+  margin: 0;
 }
