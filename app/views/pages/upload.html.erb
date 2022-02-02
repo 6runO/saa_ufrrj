@@ -1,4 +1,4 @@
-<div class="container pt-3 pb-5">
+<div class="container pt-3 pb-5 px-2 px-sm-3">
 
   <%= form_tag(upload_path, multipart: true) do %>
     <div class="d-sm-flex align-items-center pb-2">
@@ -29,20 +29,28 @@
         </ul>
       </div>
 
-      <div class="tab-content px-3" id="myTabContent">
-        <div class="d-sm-flex justify-content-between pt-3 pb-1">
-          <h5>Nome: <%= @h.nome %></h5>
-          <h5>Matrícula: <%= @h.matricula %></h5>
+      <div class="tab-content px-2 px-sm-3" id="myTabContent">
+        <div class="check-boxes d-flex mt-1">
+          <div><input type="checkbox" id="media-curso" name="media-curso"><label class="my-0 pt-1 pl-1 pl-sm-2 mr-3 mr-sm-4" for="media-curso">Média Curso</label></div>
+          <div><input type="checkbox" id="media-geral" name="media-geral"><label class="my-0 pt-1 pl-1 pl-sm-2" for="media-geral">Média Geral</label></div>
         </div>
+
+        <hr class="my-1">
+
+        <div class="d-sm-flex justify-content-between pt-1">
+          <h5 class="my-0">Nome: <%= @h.nome %></h5>
+          <h5 class="my-0">Matrícula: <%= @h.matricula %></h5>
+        </div>
+
+        <hr class="my-1">
 
         <div class="tab-pane fade show active text-center" id="geral" role="tabpanel" aria-labelledby="geral-tab">
           Colocar aqui informações gerais...
         </div>
         <% @unique_ano_per.each_with_index do |ano_per, index| %>
           <div class="tab-pane fade text-center" id=<%= "per-#{index}" %> role="tabpanel" aria-labelledby=<%= "tab-#{index}" %>>
-            Informações sobre o período <%= ano_per %>
-            <p>Hrs APR: <%= @hrs_apr_regulares[index - 1] %></p>
-            <p>IRA: <%= @ira[index - 1] %></p>
+            <p>Hrs APR: <%= @hrs_apr_regulares[index] %></p>
+            <p>IRA: <%= @ira[index] %></p>
           </div>
         <% end %>
       </div>

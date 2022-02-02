@@ -18,26 +18,37 @@ csv_path = "app/csv/historico.csv"
 
 csv = CSV.read(csv_path, headers: true)
 
-periodo = csv.select { |row| row["ano_per"] == "2015.2" }
-rep = periodo.select { |row| row["situacao"] == "fsdfsd" }
-
-# teste1 = periodo.map { |row| row["media"] }.sum { |e| e.gsub(",", ".").to_f }
-teste1 = periodo.sum(0.0) { |row| row["media"].gsub(",", ".").to_f }
-
-teste2 = rep.sum(0) { |row| row["ch"].to_i }
-
-puts "\n"
-
 def numeric?(string)
   Float(string) != nil rescue false
 end
 
-cr_rows = periodo.select { |row| numeric?(row["media"][0]) }
-ch_sum = cr_rows.sum(0.0) { |row| (row["media"].gsub(",", ".").to_f) * row["ch"].to_i  }
-cr = (ch_sum / (cr_rows.sum(0) { |row| row["ch"].to_i })).round(2)
-puts cr
+puts "\n"
 
-ira_rows = csv.select { |row| numeric?(row["media"][0]) && row["ano_per"] <= "2015.2" }
-ch_sum = ira_rows.sum(0.0) { |row| (row["media"].gsub(",", ".").to_f) * row["ch"].to_i  }
-ira = (ch_sum / (ira_rows.sum(0) { |row| row["ch"].to_i })).round(2)
-puts ira
+hrs_apr_regulares = []
+
+unique_ano_per = csv["ano_per"].uniq.sort
+puts "\n"
+print "unique_ano_per: #{unique_ano_per}"
+
+unique_ano_per.each do |ano_per|
+  csv_ano_per = csv.select { |row| row["ano_per"] == ano_per }
+
+  situacoes_aproveitado = ["CUMPRIU", "TRANSFERIDO", "INCORPORADO", "DISPENSADO"]
+  situacoes_apr = ["APR", "APRN"]
+  situacoes_rep_media = ["REP", "REPN"]
+  situacoes_rep_falta = ["REPF", "REPMF", "REPNF"]
+  #### As situações matriculado, trancado e cancelado não precisam de array, pois só possuem um item
+
+  tipos_regulares = ["", "*", "e", "&"]
+  tipos_atividades = ["@", "§"]
+  #### O tipo eletivo não precisa de array, pois só possui um item
+
+  apr_regulares = csv_ano_per.select { |row| (situacoes_apr.include?(row['situacao'])) && (tipos_regulares.include?(row['tipo'])) }
+
+  puts "\n"
+  puts apr_regulares.sum(0) { |row| row["ch"].to_i }
+
+  hrs_apr_regulares << apr_regulares.sum(0) { |row| row["ch"].to_i }
+  puts "\n"
+  puts "apr_regulares: #{hrs_apr_regulares}"
+end

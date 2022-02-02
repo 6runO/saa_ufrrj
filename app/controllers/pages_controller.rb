@@ -67,7 +67,7 @@ class PagesController < ApplicationController
   def csv_analysis(csv)
     @unique_ano_per = csv["ano_per"].uniq.sort
     @unique_ano_per.each do |ano_per|
-      csv_ano_per = csv.select { |row| row["ano_per"] }
+      csv_ano_per = csv.select { |row| row["ano_per"] == ano_per }
 
       situacoes_aproveitado = ["CUMPRIU", "TRANSFERIDO", "INCORPORADO", "DISPENSADO"]
       situacoes_apr = ["APR", "APRN"]
@@ -94,36 +94,47 @@ class PagesController < ApplicationController
       trancado = csv_ano_per.select { |row| row["situacao"] == "TRANCADO" }
       cancelado = csv_ano_per.select { |row| row["situacao"] == "CANCELADO" }
 
-      @hrs_aproveitado_regulares << (aproveitado_regulares.sum(0) { |row| row["ch"].to_i })
+      @hrs_aproveitado_regulares << aproveitado_regulares.sum(0) { |row| row["ch"].to_i }
       @hrs_aproveitado_atividades << aproveitado_atividades.sum(0) { |row| row["ch"].to_i }
-      @hrs_apr_regulares << apr_regulares.sum(0) { |row| row["ch"].to_i }
-      @hrs_apr_eletivas << apr_eletivas.sum(0) { |row| row["ch"].to_i }
+
+      @hrs_apr_regulares = apr_regulares.sum(0) { |row| row["ch"].to_i }
+      @hrs_apr_eletivas = apr_eletivas.sum(0) { |row| row["ch"].to_i }
+
+
       @hrs_apr_atividades << apr_atividades.sum(0) { |row| row["ch"].to_i }
+      @hrs_apr_regulares_eletivas = @hrs_apr_regulares + @hrs_apr_eletivas
+
       @hrs_rep_media_regulares_eletivas << rep_media_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
       @hrs_rep_media_atividades << rep_media_atividades.sum(0) { |row| row["ch"].to_i }
+
       @hrs_rep_falta_regulares_eletivas << rep_falta_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
       @hrs_rep_falta_atividades << rep_falta_atividades.sum(0) { |row| row["ch"].to_i }
+
+      @hrs_cursado_regulares_eletivas
+
       @hrs_matriculado_regulares << matriculado_regulares.sum(0) { |row| row["ch"].to_i }
       @hrs_matriculado_eletivas << matriculado_eletivas.sum(0) { |row| row["ch"].to_i }
       @hrs_matriculado_atividades << matriculado_atividades.sum(0) { |row| row["ch"].to_i }
+      @hrs_matriculado_regulares_eletivas = @hrs_matriculado_regulares + @hrs_matriculado_eletivas
+
       @num_rep_falta_regulares_eletivas << rep_falta_regulares_eletivas.size
       @num_trancado << trancado.size
       @num_cancelado << cancelado.size
 
-      csv_analysis_indexes(csv, ano_per, csv_ano_per)
+      csv_analysis_indexes(csv, ano_per, csv_ano_per, situacoes_rep_falta)
     end
   end
 
-  def csv_analysis_indexes(csv, ano_per, csv_ano_per)
+  def csv_analysis_indexes(csv, ano_per, csv_ano_per, situacoes_rep_falta)
     @hrs_cursado_regulares_eletivas << @hrs_apr_regulares + @hrs_apr_eletivas + @hrs_rep_media_regulares_eletivas + @hrs_rep_falta_regulares_eletivas
 
     cr_rows = csv_ano_per.select { |row| numeric?(row["media"][0]) }
-    ch_sum = cr_rows.sum(0.0) { |row| (row["media"].gsub(",", ".").to_f) * row["ch"].to_i  }
+    ch_sum = cr_rows.sum(0.0) { |row| situacoes_rep_falta.include?(row["situacao"]) ? 0 : ((row["media"].gsub(",", ".").to_f) * row["ch"].to_i) }
     cr = cr_rows.empty? ? 0.0 : (ch_sum / (cr_rows.sum(0) { |row| row["ch"].to_i })).round(2)
     @cr << cr
 
     ira_rows = csv.select { |row| numeric?(row["media"][0]) && row["ano_per"] <= ano_per }
-    ch_sum = ira_rows.sum(0.0) { |row| (row["media"].gsub(",", ".").to_f) * row["ch"].to_i  }
+    ch_sum = ira_rows.sum(0.0) { |row| situacoes_rep_falta.include?(row["situacao"]) ? 0 : ((row["media"].gsub(",", ".").to_f) * row["ch"].to_i) }
     ira = ira_rows.empty? ? 0.0 : (ch_sum / (ira_rows.sum(0) { |row| row["ch"].to_i })).round(2)
     @ira << ira
   end
