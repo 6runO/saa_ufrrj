@@ -8,13 +8,46 @@
   }
 }
 
-.indices-box p {
+.indexes-box p {
   font-size: 0.9rem;
 }
 
+.index-title {
+  border: 1px solid rgb(150, 150, 150);
+  width: 70px;
+  text-align: right;
+  margin: 10px 0 0 0;
+}
+
+.index-data, .index-data-curso, .index-data-geral {
+  border: 1px solid rgb(150, 150, 150);
+  padding: 0 8px;
+  width: 50px;
+}
+
+.index-data {
+  margin: 10px 0 0 0;
+}
+
+.index-data-curso {
+  color: $info;
+  margin: 0;
+}
+
+.index-data-geral {
+  color: $warning;
+  margin: 0;
+}
+
 @media (max-width: 767px) {
-  .indices-box p {
+  .indexes-box p {
     font-size: 0.8rem
+  }
+  .index-title {
+    width: 60px;
+  }
+  .index-data, .index-data-curso, .index-data-geral {
+    width: 40px;
   }
 }
 
@@ -27,23 +60,30 @@
   vertical-align: middle;
 }
 
-.indices-box {
+.indexes-box {
   border: 1px solid rgb(220, 220, 220);
 }
 
-.indices-box-title {
+.indexes-box-title {
   background-color: rgb(220, 220, 220);
   font-weight: bold;
 }
 
-.data-box {
-  border: 1px solid rgb(150, 150, 150);
-  padding: 0 8px;
-  margin: 0;
+.media-curso {
+  color: $info;
+  font-weight: bold;
 }
 
-.data-box-curso {
-  background-color: $info;
-  padding: 0 8px;
-  margin: 0;
+.media-geral {
+  color: $warning;
+  font-weight: bold;
+}
+
+.gutter-2.row {
+  margin-right: -1px;
+  margin-left: -1px;
+}
+.gutter-2 > [class^="col-"] {
+  padding-right: 1px;
+  padding-left: 1px;
 }

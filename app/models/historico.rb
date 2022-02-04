@@ -78,8 +78,8 @@ class Historico
       (@data_nascimento = line_array[line_array.index("Nascimento:") + 1]) if line["Data de Nascimento:"]
       (@cpf = line_array[line_array.index("CPF:") + 1]) if line["Nº do CPF:"]
       (@curriculo = line_array[(line_array.index("Currículo:") + 1)..(line_array.index("Currículo:") + 3)].join(' ')) if line["Currículo:"]
+      (@inicio = line_array[line_array.index("Inicial:") + 1]) if line["Período Letivo Inicial:"]
       # (@local_nascimento = line_array[(line_array.index("Local") + 3)..-1].join(' ')) if line["Local de Nascimento:"]
-      # (@inicio = line_array[line_array.index("Inicial:") + 1]) if line["Período Letivo Inicial:"]
       # (@ingresso = line_array[3..-1].join(' ')) if line["Forma de Ingresso:"]
     end
   end
@@ -104,7 +104,6 @@ class Historico
       page = reader.page(table_page + 1).text
       start_from = page.index("Exigido", look_for_from) + 7
     end
-    # stop_at = page.index("Integralizado", look_for_from) - 1
     exigido = page[start_from..(start_from + 100)]
     exigido.slice!("h")
     exigido = exigido.split

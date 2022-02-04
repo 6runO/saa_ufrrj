@@ -63,6 +63,8 @@ class PagesController < ApplicationController
     @ratio_apr = []
     @cr = []
     @ira = []
+    @contrapartida_resultado = []
+    @contrapartida_motivo = []
   end
 
   def csv_analysis(csv)
@@ -130,6 +132,8 @@ class PagesController < ApplicationController
 
       csv_analysis_percent_apr(hrs_apr_regulares_eletivas, hrs_cursado_regulares_eletivas)
       csv_analysis_cr_ira(csv, ano_per, csv_ano_per, situacoes_rep_falta)
+      csv_analysis_contrapartida_proaes()
+      @unique_ano_per[0] = "0000.0" if @unique_ano_per[0] == "--"
     end
   end
 
@@ -148,5 +152,12 @@ class PagesController < ApplicationController
     ch_sum = ira_rows.sum(0.0) { |row| situacoes_rep_falta.include?(row["situacao"]) ? 0 : ((row["media"].gsub(",", ".").to_f) * row["ch"].to_i) }
     ira = ira_rows.empty? ? 0.0 : (ch_sum / (ira_rows.sum(0) { |row| row["ch"].to_i })).round(2)
     @ira << ira
+  end
+
+  def csv_analysis_contrapartida_proaes()
+
+    @contrapartida_resultado
+    @contrapartida_motivo
+
   end
 end
