@@ -13,29 +13,42 @@
 }
 
 .index-title {
-  border: 1px solid rgb(150, 150, 150);
-  width: 70px;
+  // border: 1px solid rgb(150, 150, 150);
+  width: 80px;
   text-align: right;
-  margin: 10px 0 0 0;
+  margin: 15px 0 0 0;
 }
 
 .index-data, .index-data-curso, .index-data-geral {
-  border: 1px solid rgb(150, 150, 150);
   padding: 0 8px;
-  width: 50px;
+  width: 60px;
 }
 
 .index-data {
-  margin: 10px 0 0 0;
+  // border: 1px solid rgb(150, 150, 150);
+  background-color: rgb(240, 240, 240);
+  margin: 15px 0 0 0;
 }
 
-.index-data-curso {
-  color: $info;
+.index-data-curso-off {
+  display: none;
+}
+
+.index-data-geral-off {
+  display: none;
+}
+
+.index-data-curso-on {
+  display: block;
+  background-color: $info;
+  opacity: 0.5;
   margin: 0;
 }
 
-.index-data-geral {
-  color: $warning;
+.index-data-geral-on {
+  display: block;
+  background-color: $warning;
+  opacity: 0.5;
   margin: 0;
 }
 
@@ -44,10 +57,10 @@
     font-size: 0.8rem
   }
   .index-title {
-    width: 60px;
+    width: 70px;
   }
   .index-data, .index-data-curso, .index-data-geral {
-    width: 40px;
+    width: 60px;
   }
 }
 

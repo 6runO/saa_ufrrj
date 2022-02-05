@@ -18,7 +18,12 @@
 }
 
 .nav-logo {
-  color: rgba(0,0,0,0.5);
+  color: rgba(0,0,0,0.8);
+}
+
+.nav-logo:hover {
+  color: $info;
+  text-decoration: none;
 }
 
 @media (min-width: 576px) {

@@ -28,9 +28,11 @@ import "bootstrap";
 // Internal imports, e.g:
 // import { initSelect2 } from '../components/init_select2';
 import { uploadForm } from '../components/upload_form';
+import { toggleAverages } from '../components/toggle_averages';
 
 document.addEventListener('turbolinks:load', () => {
   // Call your functions here, e.g:
   // initSelect2();
   uploadForm();
+  toggleAverages()
 });
