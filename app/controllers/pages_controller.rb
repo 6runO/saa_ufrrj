@@ -105,7 +105,7 @@ class PagesController < ApplicationController
   end
 
   def csv_analysis(csv)
-    @forged_id = @data_nascimento + @cpf[0..2] + @curriculo[0..4] + @inicio
+    @forged_id = @data_nascimento.last(2) + @cpf.first(3) + @curriculo.first(5) + @matricula[6..7]
     @unique_ano_per = csv["ano_per"].uniq.sort
     @unique_ano_per.each do |ano_per|
       csv_ano_per = csv.select { |row| row["ano_per"] == ano_per }
