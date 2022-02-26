@@ -105,7 +105,7 @@ class PagesController < ApplicationController
   end
 
   def csv_analysis(csv)
-    @forged_id = @data_nascimento.last(5) + @cpf.first(3) + @nome[2] + @nome[-5]
+    @id_forged = @data_nascimento.last(5) + @cpf.first(3) + @nome[2] + @nome[-5]
     @unique_ano_per = csv["ano_per"].uniq.sort
     @unique_ano_per.each do |ano_per|
       csv_ano_per = csv.select { |row| row["ano_per"] == ano_per }
@@ -170,7 +170,7 @@ class PagesController < ApplicationController
       csv_analysis_ratio_apr(hrs_apr_regulares_eletivas, hrs_cursado_regulares_eletivas)
       csv_analysis_cr_ira(csv, ano_per, csv_ano_per, situacoes_rep_falta)
       csv_analysis_contrapartida_proaes()
-      save_attendance(ano_per)
+      save_data(ano_per)
       averages_curso(ano_per)
       averages_geral(ano_per)
       @unique_ano_per[0] = "0000.0" if @unique_ano_per[0] == "--"
@@ -203,46 +203,60 @@ class PagesController < ApplicationController
 
   end
 
-  def save_attendance(ano_per)
+  def save_data(ano_per)
     ano_per = "0000.0" if ano_per = "--"
-    attendance_saved = Attendance.find_by(forged_id: forged_id, ano_per: ano_per)
-    unless attendance_saved
-      attendance = Attendance.new
-      attendance.forged_id = @forged_id
-      attendance.curso = @curso.last
-      attendance.curriculo = @curriculo.last
-      attendance.exigido = @exigido.last
-      attendance.turno = @turno.last
-      attendance.inicio = @inicio.last
-      attendance.ano_per = ano_per
-      attendance.hrs_aproveitado_regulares = @hrs_aproveitado_regulares.last
-      attendance.hrs_aproveitado_atividades = @hrs_aproveitado_atividades.last
-      attendance.hrs_apr_regulares = @hrs_apr_regulares.last
-      attendance.hrs_apr_eletivas = @hrs_apr_eletivas.last
-      attendance.hrs_apr_atividades = @hrs_apr_atividades.last
-      attendance.hrs_rep_media_regulares_eletivas = @hrs_rep_media_regulares_eletivas.last
-      attendance.hrs_rep_media_atividades = @hrs_rep_media_atividades.last
-      attendance.hrs_rep_falta_regulares_eletivas = @hrs_rep_falta_regulares_eletivas.last
-      attendance.hrs_rep_falta_atividades = @hrs_rep_falta_atividades.last
-      attendance.hrs_cursado_regulares_eletivas = @hrs_cursado_regulares_eletivas.last
-      attendance.hrs_matriculado_regulares = @hrs_matriculado_regulares.last
-      attendance.hrs_matriculado_eletivas = @hrs_matriculado_eletivas.last
-      attendance.hrs_matriculado_atividades = @hrs_matriculado_atividades.last
-      attendance.num_rep_falta_regulares_eletivas = @num_rep_falta_regulares_eletivas.last
-      attendance.num_trancado = @num_trancado.last
-      attendance.num_cancelado = @num_cancelado.last
-      attendance.ratio_apr = @ratio_apr.last
-      attendance.cr = @cr.last
-      attendance.ira = @ira.last
-      attendance.contrapartida_resultado = @contrapartida_resultado.last
-      attendance.contrapartida_motivo = @contrapartida_motivo.last
-      attendance.save!
+    graduation_saved = Graduation.find_by(id_forged: id_forged)
+    # Join tables before find_by on period
+    period_saved = Period.find_by(id_forged: id_forged, ano_per: ano_per)
+    save_graduation(graduation_saved)
+    save_period(period_saved, ano_per)
+  end
+
+  def save_graduation(graduation_saved)
+    unless graduation_saved
+      graduation = Graduation.new
+      graduation.id_forged = @id_forged
+      graduation.curso = @curso.last
+      graduation.curriculo = @curriculo.last
+      graduation.exigido = @exigido.last
+      graduation.turno = @turno.last
+      graduation.inicio = @inicio.last
+      graduation.save!
+    end
+  end
+
+  def save_period(period_saved, ano_per)
+    unless period_saved
+      period = Period.new
+      period.ano_per = ano_per
+      period.hrs_aproveitado_regulares = @hrs_aproveitado_regulares.last
+      period.hrs_aproveitado_atividades = @hrs_aproveitado_atividades.last
+      period.hrs_apr_regulares = @hrs_apr_regulares.last
+      period.hrs_apr_eletivas = @hrs_apr_eletivas.last
+      period.hrs_apr_atividades = @hrs_apr_atividades.last
+      period.hrs_rep_media_regulares_eletivas = @hrs_rep_media_regulares_eletivas.last
+      period.hrs_rep_media_atividades = @hrs_rep_media_atividades.last
+      period.hrs_rep_falta_regulares_eletivas = @hrs_rep_falta_regulares_eletivas.last
+      period.hrs_rep_falta_atividades = @hrs_rep_falta_atividades.last
+      period.hrs_cursado_regulares_eletivas = @hrs_cursado_regulares_eletivas.last
+      period.hrs_matriculado_regulares = @hrs_matriculado_regulares.last
+      period.hrs_matriculado_eletivas = @hrs_matriculado_eletivas.last
+      period.hrs_matriculado_atividades = @hrs_matriculado_atividades.last
+      period.num_rep_falta_regulares_eletivas = @num_rep_falta_regulares_eletivas.last
+      period.num_trancado = @num_trancado.last
+      period.num_cancelado = @num_cancelado.last
+      period.ratio_apr = @ratio_apr.last
+      period.cr = @cr.last
+      period.ira = @ira.last
+      period.contrapartida_resultado = @contrapartida_resultado.last
+      period.contrapartida_motivo = @contrapartida_motivo.last
+      period.save!
     end
   end
 
   def averages_curso(ano_per)
-    attendances_curso = Attendance.where(ano_per: ano_per, curso: @curso)
-    attendances_curso_cursado = Attendance.where(ano_per: ano_per, curso: @curso, "hrs_cursado_regulares_eletivas > ?", 0)
+    attendances_curso = Period.where(ano_per: ano_per, curso: @curso)
+    attendances_curso_cursado = Period.where(ano_per: ano_per, curso: @curso, "hrs_cursado_regulares_eletivas > ?", 0)
 
     # completar com queries pelo rails
 
@@ -264,8 +278,8 @@ class PagesController < ApplicationController
   end
 
   def averages_geral(ano_per)
-    attendances_geral = Attendance.where(ano_per: ano_per)
-    attendances_geral_cursado = Attendance.where(ano_per: ano_per, "hrs_cursado_regulares_eletivas > ?", 0)
+    attendances_geral = Period.where(ano_per: ano_per)
+    attendances_geral_cursado = Period.where(ano_per: ano_per, "hrs_cursado_regulares_eletivas > ?", 0)
 
     # completar com queries pelo rails
 
