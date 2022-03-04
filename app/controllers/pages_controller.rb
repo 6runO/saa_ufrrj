@@ -39,6 +39,7 @@ class PagesController < ApplicationController
       csv = CSV.read(temp.path, headers: true)
       global_arrays
       global_arrays_averages
+      save_graduation
       csv_analysis(csv)
       geral_summaries
     end
@@ -104,8 +105,26 @@ class PagesController < ApplicationController
     @average_geral_ira = []
   end
 
-  def csv_analysis(csv)
+  def save_graduation
     @id_forged = @data_nascimento.last(5) + @cpf.first(3) + @nome[2] + @nome[-5]
+    @graduation = Graduation.find_by(id_forged: @id_forged)
+    save_graduation_data(@graduation)
+  end
+
+  def save_graduation_data(graduation)
+    unless graduation
+      @graduation = Graduation.new
+      @graduation.id_forged = @id_forged
+      @graduation.curso = @curso.last
+      @graduation.curriculo = @curriculo.last
+      @graduation.exigido = @exigido.last
+      @graduation.turno = @turno.last
+      @graduation.inicio = @inicio.last
+      @graduation.save!
+    end
+  end
+
+  def csv_analysis(csv)
     @unique_ano_per = csv["ano_per"].uniq.sort
     @unique_ano_per.each do |ano_per|
       csv_ano_per = csv.select { |row| row["ano_per"] == ano_per }
@@ -169,8 +188,8 @@ class PagesController < ApplicationController
 
       csv_analysis_ratio_apr(hrs_apr_regulares_eletivas, hrs_cursado_regulares_eletivas)
       csv_analysis_cr_ira(csv, ano_per, csv_ano_per, situacoes_rep_falta)
-      csv_analysis_contrapartida_proaes()
-      save_data(ano_per)
+      csv_analysis_contrapartida_proaes(#############)
+      save_period(ano_per)
       averages_curso(ano_per)
       averages_geral(ano_per)
       @unique_ano_per[0] = "0000.0" if @unique_ano_per[0] == "--"
@@ -203,31 +222,17 @@ class PagesController < ApplicationController
 
   end
 
-  def save_data(ano_per)
+  def save_period(ano_per)
     ano_per = "0000.0" if ano_per = "--"
-    graduation_saved = Graduation.find_by(id_forged: id_forged)
-    # Join tables before find_by on period
-    period_saved = Period.find_by(id_forged: id_forged, ano_per: ano_per)
-    save_graduation(graduation_saved)
-    save_period(period_saved, ano_per)
+    # period_saved = Period.joins(:graduation).find_by(id_forged: @id_forged, ano_per: ano_per)
+    period_saved = Period.find_by(graduation_id: @graduation.id, ano_per: ano_per)
+    save_period_data(period_saved, ano_per)
   end
 
-  def save_graduation(graduation_saved)
-    unless graduation_saved
-      graduation = Graduation.new
-      graduation.id_forged = @id_forged
-      graduation.curso = @curso.last
-      graduation.curriculo = @curriculo.last
-      graduation.exigido = @exigido.last
-      graduation.turno = @turno.last
-      graduation.inicio = @inicio.last
-      graduation.save!
-    end
-  end
-
-  def save_period(period_saved, ano_per)
+  def save_period_data(period_saved, ano_per)
     unless period_saved
       period = Period.new
+      period.graduation = @graduation
       period.ano_per = ano_per
       period.hrs_aproveitado_regulares = @hrs_aproveitado_regulares.last
       period.hrs_aproveitado_atividades = @hrs_aproveitado_atividades.last
