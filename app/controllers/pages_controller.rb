@@ -106,8 +106,8 @@ class PagesController < ApplicationController
   end
 
   def save_graduation
-    @id_forged = @data_nascimento.last(5) + @cpf.first(3) + @nome[2] + @nome[-5]
-    @graduation = Graduation.find_by(id_forged: @id_forged)
+    @id_forged = @data_nascimento[1] + @data_nascimento[4] + @data_nascimento[9] + @cpf.first(3) + @cpf[9..10]
+    @graduation = Graduation.find_by(id_forged: @id_forged, curriculo: @curriculo, inicio: @inicio)
     save_graduation_data(@graduation)
   end
 
@@ -115,11 +115,11 @@ class PagesController < ApplicationController
     unless graduation
       @graduation = Graduation.new
       @graduation.id_forged = @id_forged
-      @graduation.curso = @curso.last
-      @graduation.curriculo = @curriculo.last
-      @graduation.exigido = @exigido.last
-      @graduation.turno = @turno.last
-      @graduation.inicio = @inicio.last
+      @graduation.curso = @curso
+      @graduation.curriculo = @curriculo
+      @graduation.exigido = @exigido
+      @graduation.turno = @turno
+      @graduation.inicio = @inicio
       @graduation.save!
     end
   end
@@ -230,7 +230,8 @@ class PagesController < ApplicationController
   end
 
   def save_period_data(period_saved, ano_per)
-    unless period_saved
+    matriculado_total = matriculado_regulares + matriculado_eletivas + matriculado_atividades
+    if period_saved == nil && matriculado_total == 0
       period = Period.new
       period.graduation = @graduation
       period.ano_per = ano_per
