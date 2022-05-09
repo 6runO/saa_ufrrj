@@ -1,4 +1,5 @@
 require_relative "../models/historico"
+require_relative "../models/contrapartida"
 require 'tempfile'
 require 'csv'
 
@@ -72,6 +73,7 @@ class PagesController < ApplicationController
   end
 
   def global_arrays_averages
+    # Averages per graduation
     @average_curso_hrs_aproveitado_regulares_atividades = []
     @average_curso_hrs_apr_regulares_eletivas = []
     @average_curso_hrs_apr_atividades = []
@@ -87,7 +89,7 @@ class PagesController < ApplicationController
     @average_curso_ratio_apr = []
     @average_curso_cr = []
     @average_curso_ira = []
-
+    # General averages
     @average_geral_hrs_aproveitado_regulares_atividades = []
     @average_geral_hrs_apr_regulares_eletivas = []
     @average_geral_hrs_apr_atividades = []
@@ -151,6 +153,7 @@ class PagesController < ApplicationController
       matriculado_regulares = csv_ano_per.select { |row| row["situacao"] == "MATRICULADO" && tipos_regulares.include?(row['tipo']) }
       matriculado_eletivas = csv_ano_per.select { |row| row["situacao"] == "MATRICULADO" && row["tipo"] == "#" }
       matriculado_atividades = csv_ano_per.select { |row| row["situacao"] == "MATRICULADO" && tipos_atividades.include?(row['tipo']) }
+      matriculado_num_total = csv_ano_per.select { |row| row["situacao"] == "MATRICULADO" }
       trancado = csv_ano_per.select { |row| row["situacao"] == "TRANCADO" }
       cancelado = csv_ano_per.select { |row| row["situacao"] == "CANCELADO" }
 
@@ -181,6 +184,7 @@ class PagesController < ApplicationController
       @hrs_matriculado_eletivas << matriculado_eletivas.sum(0) { |row| row["ch"].to_i }
       @hrs_matriculado_atividades << matriculado_atividades.sum(0) { |row| row["ch"].to_i }
       @hrs_matriculado_regulares_eletivas = @hrs_matriculado_regulares + @hrs_matriculado_eletivas
+      @num_matriculado = matriculado_num_total.count
 
       @num_rep_falta_regulares_eletivas << rep_falta_regulares_eletivas.size
       @num_trancado << trancado.size
@@ -188,10 +192,11 @@ class PagesController < ApplicationController
 
       csv_analysis_ratio_apr(hrs_apr_regulares_eletivas, hrs_cursado_regulares_eletivas)
       csv_analysis_cr_ira(csv, ano_per, csv_ano_per, situacoes_rep_falta)
-      csv_analysis_contrapartida_proaes(#############)
+      csv_analysis_contrapartida
       save_period(ano_per)
-      averages_curso(ano_per)
-      averages_geral(ano_per)
+      ##### Uncomment when queries are done #####
+      # averages_curso(ano_per)
+      # averages_geral(ano_per)
       @unique_ano_per[0] = "0000.0" if @unique_ano_per[0] == "--"
     end
   end
@@ -213,13 +218,16 @@ class PagesController < ApplicationController
     @ira << ira
   end
 
-  def csv_analysis_contrapartida_proaes()
-
-    # transpor lógica do vba
-
-    @contrapartida_resultado
-    @contrapartida_motivo
-
+  def csv_analysis_contrapartida
+    @contrapartida_motivo << Contrapartida.motivo(num_repf: @num_rep_falta_regulares_eletivas.last,
+                                            hrs_apr: @hrs_apr_regulares_eletivas.last
+                                            hrs_repm: @hrs_rep_media_regulares_eletivas.last,
+                                            hrs_repf: @hrs_rep_falta_regulares_eletivas.last,
+                                            ratio_apr: @ratio_apr.last,
+                                            cr: @cr.last,
+                                            ira: @ira.last,
+                                            turno: @turno)
+    @contrapartida_resultado << Contrapartida.resultado(@contrapartida_motivo.last)
   end
 
   def save_period(ano_per)
@@ -230,8 +238,7 @@ class PagesController < ApplicationController
   end
 
   def save_period_data(period_saved, ano_per)
-    matriculado_total = matriculado_regulares + matriculado_eletivas + matriculado_atividades
-    if period_saved == nil && matriculado_total == 0
+    if period_saved == nil && @num_matriculado == 0
       period = Period.new
       period.graduation = @graduation
       period.ano_per = ano_per
@@ -254,8 +261,6 @@ class PagesController < ApplicationController
       period.ratio_apr = @ratio_apr.last
       period.cr = @cr.last
       period.ira = @ira.last
-      period.contrapartida_resultado = @contrapartida_resultado.last
-      period.contrapartida_motivo = @contrapartida_motivo.last
       period.save!
     end
   end

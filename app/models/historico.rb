@@ -2,7 +2,8 @@ require 'pdf-reader'
 require 'csv'
 
 class Historico
-  attr_reader :nome, :matricula, :data_nascimento, :local_nascimento, :cpf, :curriculo, :inicio, :ingresso
+  attr_reader :nome, :matricula, :data_nascimento, :cpf, :curriculo, :inicio
+  #attr_reader :local_nascimento, :forma_ingresso
 
   def parse_pdf(pdf_path, csv_path)
     #### Doing stuff with pdf-reader
@@ -80,7 +81,7 @@ class Historico
       (@curriculo = line_array[(line_array.index("Currículo:") + 1)..(line_array.index("Currículo:") + 3)].join(' ')) if line["Currículo:"]
       (@inicio = line_array[line_array.index("Inicial:") + 1]) if line["Período Letivo Inicial:"]
       # (@local_nascimento = line_array[(line_array.index("Local") + 3)..-1].join(' ')) if line["Local de Nascimento:"]
-      # (@ingresso = line_array[3..-1].join(' ')) if line["Forma de Ingresso:"]
+      # (@forma_ingresso = line_array[3..-1].join(' ')) if line["Forma de Ingresso:"]
     end
   end
 
