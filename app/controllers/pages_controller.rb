@@ -42,7 +42,8 @@ class PagesController < ApplicationController
       global_arrays_averages
       save_graduation
       csv_analysis(csv)
-      geral_summaries
+      ##### Uncomment when queries are built #####
+      # geral_summaries
     end
     temp.unlink
   end
@@ -194,7 +195,7 @@ class PagesController < ApplicationController
       csv_analysis_cr_ira(csv, ano_per, csv_ano_per, situacoes_rep_falta)
       csv_analysis_contrapartida
       save_period(ano_per)
-      ##### Uncomment when queries are done #####
+      ##### Uncomment when queries are built #####
       # averages_curso(ano_per)
       # averages_geral(ano_per)
       @unique_ano_per[0] = "0000.0" if @unique_ano_per[0] == "--"
@@ -220,7 +221,7 @@ class PagesController < ApplicationController
 
   def csv_analysis_contrapartida
     @contrapartida_motivo << Contrapartida.motivo(num_repf: @num_rep_falta_regulares_eletivas.last,
-                                            hrs_apr: @hrs_apr_regulares_eletivas.last
+                                            hrs_apr: @hrs_apr_regulares_eletivas.last,
                                             hrs_repm: @hrs_rep_media_regulares_eletivas.last,
                                             hrs_repf: @hrs_rep_falta_regulares_eletivas.last,
                                             ratio_apr: @ratio_apr.last,
@@ -267,48 +268,50 @@ class PagesController < ApplicationController
 
   def averages_curso(ano_per)
     attendances_curso = Period.where(ano_per: ano_per, curso: @curso)
-    attendances_curso_cursado = Period.where(ano_per: ano_per, curso: @curso, "hrs_cursado_regulares_eletivas > ?", 0)
+    ### Review line below ###
+    #attendances_curso_cursado = Period.where(ano_per: ano_per, curso: @curso, "hrs_cursado_regulares_eletivas > ?", 0)
 
     # completar com queries pelo rails
 
-    @average_curso_hrs_aproveitado_regulares_atividades <<
-    @average_curso_hrs_apr_regulares_eletivas <<
-    @average_curso_hrs_apr_atividades << attendances_curso.average(:hrs_apr_atividades).round
-    @average_curso_hrs_rep_media_regulares_eletivas << attendances_curso.average(:hrs_rep_media_regulares_eletivas).round
-    @average_curso_hrs_rep_media_atividades << attendances_curso.average(:hrs_rep_media_atividades).round
-    @average_curso_hrs_rep_falta_regulares_eletivas << attendances_curso.average(:hrs_rep_falta_regulares_eletivas).round
-    @average_curso_hrs_rep_falta_atividades << attendances_curso.average(:hrs_rep_falta_atividades).round
-    @average_curso_hrs_matriculado_regulares_eletivas <<
-    @average_curso_hrs_matriculado_atividades << attendances_curso.average(:hrs_matriculado_atividades).round
-    @average_curso_num_rep_falta_regulares_eletivas << attendances_curso.average(:num_rep_falta_regulares_eletivas).round
-    @average_curso_num_trancado << attendances_curso.average(:num_trancado).round
-    @average_curso_num_cancelado << attendances_curso.average(:num_cancelado).round
-    @average_curso_ratio_apr << attendances_curso_cursado.average(:ratio_apr).round(3)
-    @average_curso_cr << attendances_curso_cursado.average(:cr).round(2)
-    @average_curso_ira << attendances_curso.average(:ira).round(2)
+    # @average_curso_hrs_aproveitado_regulares_atividades <<
+    # @average_curso_hrs_apr_regulares_eletivas <<
+    # @average_curso_hrs_apr_atividades << attendances_curso.average(:hrs_apr_atividades).round
+    # @average_curso_hrs_rep_media_regulares_eletivas << attendances_curso.average(:hrs_rep_media_regulares_eletivas).round
+    # @average_curso_hrs_rep_media_atividades << attendances_curso.average(:hrs_rep_media_atividades).round
+    # @average_curso_hrs_rep_falta_regulares_eletivas << attendances_curso.average(:hrs_rep_falta_regulares_eletivas).round
+    # @average_curso_hrs_rep_falta_atividades << attendances_curso.average(:hrs_rep_falta_atividades).round
+    # @average_curso_hrs_matriculado_regulares_eletivas <<
+    # @average_curso_hrs_matriculado_atividades << attendances_curso.average(:hrs_matriculado_atividades).round
+    # @average_curso_num_rep_falta_regulares_eletivas << attendances_curso.average(:num_rep_falta_regulares_eletivas).round
+    # @average_curso_num_trancado << attendances_curso.average(:num_trancado).round
+    # @average_curso_num_cancelado << attendances_curso.average(:num_cancelado).round
+    # @average_curso_ratio_apr << attendances_curso_cursado.average(:ratio_apr).round(3)
+    # @average_curso_cr << attendances_curso_cursado.average(:cr).round(2)
+    # @average_curso_ira << attendances_curso.average(:ira).round(2)
   end
 
   def averages_geral(ano_per)
     attendances_geral = Period.where(ano_per: ano_per)
-    attendances_geral_cursado = Period.where(ano_per: ano_per, "hrs_cursado_regulares_eletivas > ?", 0)
+    ### Review line below ###
+    # attendances_geral_cursado = Period.where(ano_per: ano_per, "hrs_cursado_regulares_eletivas > ?", 0)
 
     # completar com queries pelo rails
 
-    @average_geral_hrs_aproveitado_regulares_atividades <<
-    @average_geral_hrs_apr_regulares_eletivas <<
-    @average_geral_hrs_apr_atividades << attendances_geral.average(:hrs_apr_atividades).round
-    @average_geral_hrs_rep_media_regulares_eletivas << attendances_geral.average(:hrs_rep_media_regulares_eletivas).round
-    @average_geral_hrs_rep_media_atividades << attendances_geral.average(:hrs_rep_media_atividades).round
-    @average_geral_hrs_rep_falta_regulares_eletivas << attendances_geral.average(:hrs_rep_falta_regulares_eletivas).round
-    @average_geral_hrs_rep_falta_atividades << attendances_geral.average(:hrs_rep_falta_atividades).round
-    @average_geral_hrs_matriculado_regulares_eletivas <<
-    @average_geral_hrs_matriculado_atividades << attendances_geral.average(:hrs_matriculado_atividades).round
-    @average_geral_num_rep_falta_regulares_eletivas << attendances_geral.average(:num_rep_falta_regulares_eletivas).round
-    @average_geral_num_trancado << attendances_geral.average(:num_trancado).round
-    @average_geral_num_cancelado << attendances_geral.average(:num_cancelado).round
-    @average_geral_ratio_apr << attendances_geral_cursado.average(:ratio_apr).round(3)
-    @average_geral_cr << attendances_geral_cursado.average(:cr).round(2)
-    @average_geral_ira << attendances_geral.average(:ira).round(2)
+    # @average_geral_hrs_aproveitado_regulares_atividades <<
+    # @average_geral_hrs_apr_regulares_eletivas <<
+    # @average_geral_hrs_apr_atividades << attendances_geral.average(:hrs_apr_atividades).round
+    # @average_geral_hrs_rep_media_regulares_eletivas << attendances_geral.average(:hrs_rep_media_regulares_eletivas).round
+    # @average_geral_hrs_rep_media_atividades << attendances_geral.average(:hrs_rep_media_atividades).round
+    # @average_geral_hrs_rep_falta_regulares_eletivas << attendances_geral.average(:hrs_rep_falta_regulares_eletivas).round
+    # @average_geral_hrs_rep_falta_atividades << attendances_geral.average(:hrs_rep_falta_atividades).round
+    # @average_geral_hrs_matriculado_regulares_eletivas <<
+    # @average_geral_hrs_matriculado_atividades << attendances_geral.average(:hrs_matriculado_atividades).round
+    # @average_geral_num_rep_falta_regulares_eletivas << attendances_geral.average(:num_rep_falta_regulares_eletivas).round
+    # @average_geral_num_trancado << attendances_geral.average(:num_trancado).round
+    # @average_geral_num_cancelado << attendances_geral.average(:num_cancelado).round
+    # @average_geral_ratio_apr << attendances_geral_cursado.average(:ratio_apr).round(3)
+    # @average_geral_cr << attendances_geral_cursado.average(:cr).round(2)
+    # @average_geral_ira << attendances_geral.average(:ira).round(2)
   end
 
   def geral_summaries

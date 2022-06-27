@@ -26,7 +26,7 @@ module Contrapartida
   def self.resultado(motivo)
     cp1 = "Insatisfatório"
     cp2 = "Justificativa"
-    cp3 = "Insatisfatório (Acompanhamento, se IRA/CR>=CRM")
+    cp3 = "Insatisfatório (Acompanhamento - se IRA/CR>=CRM)"
     cp4 = "Satisfatório"
     if motivo = "N/A"
       contrapartida = cp4
