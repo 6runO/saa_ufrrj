@@ -6,6 +6,17 @@
   font-size: 12px;
 }
 
+@keyframes footer-ani {
+  from {background-color: rgb(200, 200, 200);}
+  to {background-color: rgb(35, 35, 35);}
+}
+
+.page-footer-on-click {
+  // animation: footer-ani 5s linear 1;
+  animation-name: footer-ani;
+  animation-duration: 5s;
+}
+
 .rosenaldo {
   border: 1px solid white;
   color: rgba(0, 0, 0, 1);
@@ -15,6 +26,7 @@
   word-spacing: 18px;
   padding-left: 14px;
   padding-right: 3px;
+  cursor: pointer;
 }
 
 .rosenaldo:hover {
@@ -27,6 +39,10 @@
   // color: #00FF0D;
   // color: #FF00B3;
   // color: #00FFFF;
+}
+
+.rosenaldo-on-click {
+  color: white;
 }
 
 .rose {
