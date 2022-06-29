@@ -71,6 +71,7 @@ class PagesController < ApplicationController
     @ira = []
     @contrapartida_resultado = []
     @contrapartida_motivo = []
+    @num_matriculado = []
   end
 
   def global_arrays_averages
@@ -109,8 +110,8 @@ class PagesController < ApplicationController
   end
 
   def save_graduation
-    @id_forged = @data_nascimento[1] + @data_nascimento[4] + @data_nascimento[9] + @cpf.first(3) + @cpf[9..10]
-    @graduation = Graduation.find_by(id_forged: @id_forged, curriculo: @curriculo, inicio: @inicio)
+    @id_forged = @h.data_nascimento[1] + @h.data_nascimento[4] + @h.data_nascimento[9] + @h.cpf.first(3) + @h.cpf[9..10]
+    @graduation = Graduation.find_by(id_forged: @id_forged, curriculo: @h.curriculo, inicio: @h.inicio)
     save_graduation_data(@graduation)
   end
 
@@ -118,11 +119,11 @@ class PagesController < ApplicationController
     unless graduation
       @graduation = Graduation.new
       @graduation.id_forged = @id_forged
-      @graduation.curso = @curso
-      @graduation.curriculo = @curriculo
-      @graduation.exigido = @exigido
-      @graduation.turno = @turno
-      @graduation.inicio = @inicio
+      @graduation.curso = @h.curso
+      @graduation.curriculo = @h.curriculo
+      @graduation.exigido = @h.exigido
+      @graduation.turno = @h.turno
+      @graduation.inicio = @h.inicio
       @graduation.save!
     end
   end
@@ -185,7 +186,7 @@ class PagesController < ApplicationController
       @hrs_matriculado_eletivas << matriculado_eletivas.sum(0) { |row| row["ch"].to_i }
       @hrs_matriculado_atividades << matriculado_atividades.sum(0) { |row| row["ch"].to_i }
       @hrs_matriculado_regulares_eletivas = @hrs_matriculado_regulares + @hrs_matriculado_eletivas
-      @num_matriculado = matriculado_num_total.count
+      @num_matriculado << matriculado_num_total.count
 
       @num_rep_falta_regulares_eletivas << rep_falta_regulares_eletivas.size
       @num_trancado << trancado.size
@@ -227,7 +228,8 @@ class PagesController < ApplicationController
                                             ratio_apr: @ratio_apr.last,
                                             cr: @cr.last,
                                             ira: @ira.last,
-                                            turno: @turno)
+                                            turno: @h.turno,
+                                            num_matriculado: @num_matriculado.last)
     @contrapartida_resultado << Contrapartida.resultado(@contrapartida_motivo.last)
   end
 
@@ -267,7 +269,7 @@ class PagesController < ApplicationController
   end
 
   def averages_curso(ano_per)
-    attendances_curso = Period.where(ano_per: ano_per, curso: @curso)
+    attendances_curso = Period.where(ano_per: ano_per, curso: @h.curso)
     ### Review line below ###
     #attendances_curso_cursado = Period.where(ano_per: ano_per, curso: @curso, "hrs_cursado_regulares_eletivas > ?", 0)
 

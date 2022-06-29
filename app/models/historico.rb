@@ -2,7 +2,7 @@ require 'pdf-reader'
 require 'csv'
 
 class Historico
-  attr_reader :nome, :matricula, :data_nascimento, :cpf, :curriculo, :inicio
+  attr_reader :nome, :matricula, :data_nascimento, :cpf, :curriculo, :inicio, :turno, :curso, :exigido
   #attr_reader :local_nascimento, :forma_ingresso
 
   def parse_pdf(pdf_path, csv_path)

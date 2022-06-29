@@ -3,7 +3,12 @@ const clickRosenaldo = () => {
   const rosenaldo = document.querySelector('.rosenaldo');
 
   rosenaldo.onclick = function () {
-    rosenaldo.classList.add('page-footer-on-click');
+    footer.classList.add('page-footer-on-click');
+  };
+
+  rosenaldo.addEventListener('change', nightClub);
+  function nightClub() {
+    footer.classList.add('page-footer-on-click');
   };
 
 
