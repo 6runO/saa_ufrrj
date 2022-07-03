@@ -1,25 +1,23 @@
 .page-footer{
   background-color: rgb(200, 200, 200);
+  transition: background-color 1s, color 1s;
 }
 
 .page-footer {
   font-size: 12px;
 }
 
-@keyframes footer-ani {
-  from {background-color: rgb(200, 200, 200);}
-  to {background-color: rgb(35, 35, 35);}
-}
-
-.page-footer-on-click {
-  // animation: footer-ani 5s linear 1;
-  animation-name: footer-ani;
-  animation-duration: 5s;
+.footer-on-rosenaldo-click {
+  background-color: rgb(40, 40, 40);
+  color: #00FFFF;
+  // animation-name: footer-ani;
+  // animation-duration: 5s;
+  // color: aqua;
 }
 
 .rosenaldo {
-  border: 1px solid white;
-  color: rgba(0, 0, 0, 1);
+  border: 1px solid rgba(0, 0, 0, 0.7);
+  color: rgba(0, 0, 0, 0.9);
   opacity: 1 !important;
   border-radius: 3px;
   position: relative;
@@ -30,29 +28,45 @@
 }
 
 .rosenaldo:hover {
-  // background-color: black;
   color: white;
-  box-shadow: 0 0px 8px rgba(250, 250, 250, 0.8);
-  // border-color: #00FFFF;
+  border: 1px solid white;
+  box-shadow: 0 0 8px rgba(250, 250, 250, 0.8);
+  // text-shadow: 0 0 5px rgba(250, 250, 250, 0.8)
   // color: #DE00A8;
   // color: #FFF200;
   // color: #00FF0D;
-  // color: #FF00B3;
-  // color: #00FFFF;
+  // color: #FF67B1;
+}
+
+@keyframes rosenaldo-pulse {
+  from {
+    color: rgba(0, 0, 0, 1);
+    border: 1px solid rgba(0, 0, 0, 1);
+    box-shadow: none;
+    text-shadow: none;
+  }
+  to {
+    color: #FF67B1;
+    border: 1px solid #FF67B1;
+    box-shadow: 0 0 8px #FF67B1;
+    text-shadow: 0 0 8px #FF67B1
+  }
 }
 
 .rosenaldo-on-click {
-  color: white;
+  color: rgba(0, 0, 0, 1);
+  border: 1px solid rgba(0, 0, 0, 1);
+  animation: rosenaldo-pulse 3s ease 1s 3 normal;
 }
 
 .rose {
   position: absolute;
   left: -2px;
-  top: -1px;
+  top: 1px;
 }
 
 .coconut {
   position: absolute;
   left: 44px;
-  top: -1px;
+  // top: -1px;
 }
