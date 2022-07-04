@@ -1,5 +1,4 @@
 <div class="container pt-3 pb-5 px-2 px-sm-3">
-
   <%= form_tag(upload_path, multipart: true) do %>
     <div class="d-sm-flex align-items-center pb-2">
       <div>
@@ -45,110 +44,26 @@
         <div class="tab-pane fade show active" id="geral" role="tabpanel" aria-labelledby="geral-tab">
           O conjunto da obra:
         </div>
+
         <% @unique_ano_per.each_with_index do |ano_per, index| %>
           <div class="tab-pane fade" id=<%= "per-#{index}" %> role="tabpanel" aria-labelledby=<%= "tab-#{index}" %>>
             <div class="d-sm-flex">
-
               <div class="indexes-box flex-grow-1 pb-3 mr-sm-4">
                 <h5 class="indexes-box-title text-center py-1 m-0">Índices Gerais</h5>
-                <div class="mx-1 mx-sm-2">
-                  <div class="row justify-content-around gutter-2">
-                    <div class="col-auto">
-                      <div class="d-flex">
-                        <p class="index-title mr-1">CR: </p>
-                        <div>
-                          <p class="index-data"><%= @cr[index] %></p>
-                          <p class="index-data-curso index-data-curso-off">0.00</p>
-                          <p class="index-data-geral index-data-geral-off">0.00</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-auto">
-                      <div class="d-flex">
-                        <p class="index-title mr-1">IRA: </p>
-                        <div>
-                          <p class="index-data"><%= @ira[index] %></p>
-                          <p class="index-data-curso index-data-curso-off">0.00</p>
-                          <p class="index-data-geral index-data-geral-off">0.00</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row justify-content-around gutter-2">
-                    <div class="col-auto">
-                      <div class="d-flex">
-                        <p class="index-title mr-1">% APR: </p>
-                        <div>
-                          <p class="index-data"><%= number_to_percentage(@ratio_apr[index] * 100, precision: 1) %></p>
-                          <p class="index-data-curso index-data-curso-off">0.00</p>
-                          <p class="index-data-geral index-data-geral-off">0.00</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-auto">
-                      <div class="d-flex">
-                        <p class="index-title mr-1">Índice: </p>
-                        <div>
-                          <p class="index-data">num</p>
-                          <p class="index-data-curso index-data-curso-off">0.00</p>
-                          <p class="index-data-geral index-data-geral-off">0.00</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <div class="grid-container mx-1 mx-sm-2">
+                  <% @teste.each do |key, value| %>
+                    <div class="grid-item"><%= "#{key}: #{value}" %></div>
+                  <% end %>
                 </div>
               </div>
-
               <div class="indexes-box flex-grow-1 pb-3">
                 <h5 class="indexes-box-title text-center py-1 m-0">Contrapartida Proaes</h5>
-                <div class="mx-1 mx-sm-2">
-                  <div class="row justify-content-around gutter-2">
-                    <div class="col-auto">
-                      <div class="d-flex">
-                        <p class="index-title mr-1">Hrs APR: </p>
-                        <div>
-                          <p class="index-data"><%= @hrs_apr_regulares[index] %></p>
-                          <p class="index-data-curso index-data-curso-off">0.00</p>
-                          <p class="index-data-geral index-data-geral-off">0.00</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-auto">
-                      <div class="d-flex">
-                        <p class="index-title mr-1">Hrs REP: </p>
-                        <div>
-                          <p class="index-data"><%= @hrs_rep_media_regulares_eletivas[index] %></p>
-                          <p class="index-data-curso index-data-curso-off">0.00</p>
-                          <p class="index-data-geral index-data-geral-off">0.00</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row justify-content-around gutter-2">
-                    <div class="col-auto">
-                      <div class="d-flex">
-                        <p class="index-title mr-1">Hrs REPF: </p>
-                        <div>
-                          <p class="index-data"><%= @hrs_rep_falta_regulares_eletivas[index] %></p>
-                          <p class="index-data-curso index-data-curso-off">0.00</p>
-                          <p class="index-data-geral index-data-geral-off">0.00</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-auto">
-                      <div class="d-flex">
-                        <p class="index-title mr-1">Nº REPF: </p>
-                        <div>
-                          <p class="index-data"><%= @num_rep_falta_regulares_eletivas[index] %></p>
-                          <p class="index-data-curso index-data-curso-off">0.00</p>
-                          <p class="index-data-geral index-data-geral-off">0.00</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <div class="grid-container mx-1 mx-sm-2">
+                  <% @teste.each do |key, value| %>
+                    <div class="grid-item"><%= "#{key}: #{value}" %></div>
+                  <% end %>
                 </div>
               </div>
-
             </div>
           </div>
         <% end %>

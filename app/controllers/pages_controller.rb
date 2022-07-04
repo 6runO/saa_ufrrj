@@ -49,6 +49,22 @@ class PagesController < ApplicationController
   end
 
   def global_arrays
+    @global_arrays_gerais = {cr: [], ira: [], ratio_apr: []}
+
+    @global_arrays_contrapartida = {hrs_apr_regulares_eletivas: [],
+      hrs_rep_media_regulares_eletivas: [], hrs_rep_falta_regulares_eletivas: [],
+      num_rep_falta_regulares_eletivas: []}
+
+    @global_arrays_pontuais = {hrs_aproveitado_regulares: [], hrs_aproveitado_atividades: [],
+      hrs_apr_regulares: [], hrs_apr_eletivas: [],
+      hrs_apr_atividades: [], hrs_rep_media_atividades: [],
+      hrs_rep_falta_atividades: [],
+      hrs_cursado_regulares_eletivas: [], hrs_matriculado_regulares: [],
+      hrs_matriculado_eletivas: [], hrs_matriculado_atividades: [],
+      num_trancado: [], num_cancelado: [],
+      contrapartida_resultado: [],
+      contrapartida_motivo: [], num_matriculado: [],}
+
     @hrs_aproveitado_regulares = []
     @hrs_aproveitado_atividades = []
     @hrs_apr_regulares = []
@@ -75,7 +91,18 @@ class PagesController < ApplicationController
   end
 
   def global_arrays_averages
-    # Averages per graduation
+    @teste = {"a" => 1, "b" => 2, "c" => 13, "d" => 4, "e" => 5, "f" => 6, "g" => 7, "h" => 8,
+    "i" => 9, "j" => 10, "k" => 11, "l" => 12, "m" => 13, "n" => 14}
+
+    @course_averages = {average_curso_hrs_aproveitado_regulares_atividades: [],
+    average_curso_hrs_apr_regulares_eletivas: [], average_curso_hrs_apr_atividades: [],
+    average_curso_hrs_rep_media_regulares_eletivas: [], average_curso_hrs_rep_media_atividades: [],
+    average_curso_hrs_rep_falta_regulares_eletivas: [], average_curso_hrs_rep_falta_atividades: [],
+    average_curso_hrs_matriculado_regulares_eletivas: [], average_curso_hrs_matriculado_atividades: [],
+    average_curso_num_rep_falta_regulares_eletivas: [], average_curso_num_trancado: [],
+    average_curso_num_cancelado: [], average_curso_ratio_apr: [],
+    average_curso_cr: [], average_curso_ira: []}
+
     @average_curso_hrs_aproveitado_regulares_atividades = []
     @average_curso_hrs_apr_regulares_eletivas = []
     @average_curso_hrs_apr_atividades = []
@@ -91,7 +118,16 @@ class PagesController < ApplicationController
     @average_curso_ratio_apr = []
     @average_curso_cr = []
     @average_curso_ira = []
-    # General averages
+
+    @general_averages = {average_geral_hrs_aproveitado_regulares_atividades: [],
+    average_geral_hrs_apr_regulares_eletivas: [], average_geral_hrs_apr_atividades: [],
+    average_geral_hrs_rep_media_regulares_eletivas: [], average_geral_hrs_rep_media_atividades: [],
+    average_geral_hrs_rep_falta_regulares_eletivas: [], average_geral_hrs_rep_falta_atividades: [],
+    average_geral_hrs_matriculado_regulares_eletivas: [], average_geral_hrs_matriculado_atividades: [],
+    average_geral_num_rep_falta_regulares_eletivas: [], average_geral_num_trancado: [],
+    average_geral_num_cancelado: [], average_geral_ratio_apr: [],
+    average_geral_cr: [], average_geral_ira: []}
+
     @average_geral_hrs_aproveitado_regulares_atividades = []
     @average_geral_hrs_apr_regulares_eletivas = []
     @average_geral_hrs_apr_atividades = []

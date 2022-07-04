@@ -1,3 +1,13 @@
+.grid-container {
+  display: inline-grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 1px;
+  // display: grid;
+  // column-gap: 10px;
+  // row-gap: 5px;
+  // grid-template-columns: auto auto auto;
+}
+
 .tab-content h5 {
   font-size: 1rem;
 }
