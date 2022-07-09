@@ -9,8 +9,9 @@ module Contrapartida
   MOTIVO8 = "APR<50% (REPF=0)"
   MOTIVO9 = "Matriculado"
 
-  def self.motivo(num_repf:, hrs_apr:, hrs_repm:, hrs_repf:, ratio_apr:, cr:, ira:, turno:, num_matriculado:)
-    ch_min = (turno.length > 1) ? 180 : 120
+  # def self.motivo(num_repf:, hrs_apr:, hrs_repm:, hrs_repf:, ratio_apr:, cr:, ira:, turno:, num_matriculado:)
+  def contrapartida_motivo(num_repf:, hrs_apr:, hrs_repm:, hrs_repf:, ratio_apr:, cr:, ira:, turno:, num_matriculado:)
+  ch_min = (turno.length > 1) ? 180 : 120
     hrs_cursado = hrs_apr + hrs_repm + hrs_repf
     mtv1 = MOTIVO1 if num_repf > 1
     mtv2 = MOTIVO2 if (hrs_apr == 0 && hrs_repf == 0 && hrs_repm > 0)
@@ -29,7 +30,8 @@ module Contrapartida
     end
   end
 
-  def self.resultado(motivo)
+  # def self.resultado(motivo)
+  def contrapartida_resultado(motivo)
     cp1 = "Insatisfatório"
     cp2 = "Justificativa"
     cp3 = "Insatisfatório (Acompanhamento - se IRA/CR>=CRM)"

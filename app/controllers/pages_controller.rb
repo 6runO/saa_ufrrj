@@ -4,6 +4,8 @@ require 'tempfile'
 require 'csv'
 
 class PagesController < ApplicationController
+  include Contrapartida
+
   def home
   end
 
@@ -153,8 +155,8 @@ class PagesController < ApplicationController
 
   def save_graduation
     @id_forged = @h.data_nascimento[1] + @h.data_nascimento[4] + @h.data_nascimento[9] + @h.cpf.first(3) + @h.cpf[9..10]
-    @graduation = Graduation.find_by(id_forged: @id_forged, curriculo: @h.curriculo, inicio: @h.inicio)
-    save_graduation_data(@graduation)
+    graduation = Graduation.find_by(id_forged: @id_forged, curriculo: @h.curriculo, inicio: @h.inicio)
+    save_graduation_data(graduation)
   end
 
   def save_graduation_data(graduation)
@@ -263,16 +265,11 @@ class PagesController < ApplicationController
   end
 
   def csv_analysis_contrapartida
-    @contrapartida_motivo << Contrapartida.motivo(num_repf: @num_rep_falta_regulares_eletivas.last,
-                                            hrs_apr: @hrs_apr_regulares_eletivas.last,
-                                            hrs_repm: @hrs_rep_media_regulares_eletivas.last,
-                                            hrs_repf: @hrs_rep_falta_regulares_eletivas.last,
-                                            ratio_apr: @ratio_apr.last,
-                                            cr: @cr.last,
-                                            ira: @ira.last,
-                                            turno: @h.turno,
-                                            num_matriculado: @num_matriculado.last)
-    @contrapartida_resultado << Contrapartida.resultado(@contrapartida_motivo.last)
+    @contrapartida_motivo << contrapartida_motivo(num_repf: @num_rep_falta_regulares_eletivas.last,
+      hrs_apr: @hrs_apr_regulares_eletivas.last, hrs_repm: @hrs_rep_media_regulares_eletivas.last,
+      hrs_repf: @hrs_rep_falta_regulares_eletivas.last, ratio_apr: @ratio_apr.last,
+      cr: @cr.last, ira: @ira.last, turno: @h.turno, num_matriculado: @num_matriculado.last)
+    @contrapartida_resultado << contrapartida_resultado(@contrapartida_motivo.last)
   end
 
   def save_period(ano_per)
