@@ -40,7 +40,7 @@ class PagesController < ApplicationController
     if @pdf_verified
       @h.parse_pdf(params[:historico].path, temp.path)
       csv = CSV.read(temp.path, headers: true)
-      indexes_names
+      base_indexes_names
       indexes_arrays
       averages_arrays
       save_graduation
@@ -51,7 +51,7 @@ class PagesController < ApplicationController
     temp.unlink
   end
 
-  def indexes_names
+  def base_indexes_names
     # :variable => "Label"
     @indexes_gerais = {cr: "CR:", ira: "IRA:", ratio_apr: "% APR:"}
     @indexes_contrapartida = {hrs_apr_regulares_eletivas: "Hrs APR:",
@@ -60,8 +60,8 @@ class PagesController < ApplicationController
       contrapartida_motivo: "Motivo:"}
   end
 
+
   def indexes_arrays
-    # :variable => [array]
     @arrays_gerais = @indexes_gerais.transform_values {[]}
     @arrays_contrapartida = @indexes_contrapartida.transform_values {[]}
 
@@ -153,11 +153,8 @@ class PagesController < ApplicationController
     @average_geral_ira = []
   end
 
-  def save_curriculo
-
-  end
-
   def save_graduation
+    @id_forged = @h.data_nascimento[1] + @h.data_nascimento[4] + @h.data_nascimento[9] + @h.cpf.first(3) + @h.cpf[9..10]
     graduation = Graduation.find_by(id_forged: @id_forged, curriculo: @h.curriculo, inicio: @h.inicio)
     save_graduation_data(graduation)
   end
