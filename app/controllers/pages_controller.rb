@@ -38,8 +38,9 @@ class PagesController < ApplicationController
     if @pdf_verified
       @h.parse_pdf(params[:historico].path, temp.path)
       csv = CSV.read(temp.path, headers: true)
-      global_arrays
-      global_arrays_averages
+      base_indexes_names
+      indexes_arrays
+      averages_arrays
       save_graduation
       csv_analysis(csv)
       ##### Uncomment when queries are built #####
@@ -48,22 +49,27 @@ class PagesController < ApplicationController
     temp.unlink
   end
 
-  def global_arrays
-    @global_arrays_gerais = {cr: [], ira: [], ratio_apr: []}
+  def base_indexes_names
+    # :variable => "Label"
+    @indexes_gerais = {cr: "CR:", ira: "IRA:", ratio_apr: "% APR:"}
+    @indexes_contrapartida = {hrs_apr_regulares_eletivas: "Hrs APR:",
+      hrs_rep_media_regulares_eletivas: "Hrs REP:", hrs_rep_falta_regulares_eletivas: "Hrs REPF:",
+      num_rep_falta_regulares_eletivas: "Num REPF:", contrapartida_resultado: "Resultado:",
+      contrapartida_motivo: "Motivo:"}
+  end
 
-    @global_arrays_contrapartida = {hrs_apr_regulares_eletivas: [],
-      hrs_rep_media_regulares_eletivas: [], hrs_rep_falta_regulares_eletivas: [],
-      num_rep_falta_regulares_eletivas: []}
 
-    @global_arrays_pontuais = {hrs_aproveitado_regulares: [], hrs_aproveitado_atividades: [],
+  def indexes_arrays
+    @arrays_gerais = @indexes_gerais.transform_values {[]}
+    @arrays_contrapartida = @indexes_contrapartida.transform_values {[]}
+
+    @arrays_pontuais = {hrs_aproveitado_regulares: [], hrs_aproveitado_atividades: [],
       hrs_apr_regulares: [], hrs_apr_eletivas: [],
       hrs_apr_atividades: [], hrs_rep_media_atividades: [],
       hrs_rep_falta_atividades: [],
       hrs_cursado_regulares_eletivas: [], hrs_matriculado_regulares: [],
       hrs_matriculado_eletivas: [], hrs_matriculado_atividades: [],
-      num_trancado: [], num_cancelado: [],
-      contrapartida_resultado: [],
-      contrapartida_motivo: [], num_matriculado: [],}
+      num_trancado: [], num_cancelado: [], num_matriculado: []}
 
     @hrs_aproveitado_regulares = []
     @hrs_aproveitado_atividades = []
@@ -90,7 +96,7 @@ class PagesController < ApplicationController
     @num_matriculado = []
   end
 
-  def global_arrays_averages
+  def averages_arrays
     @teste = {"a" => 1, "b" => 2, "c" => 13, "d" => 4, "e" => 5, "f" => 6, "g" => 7, "h" => 8,
     "i" => 9, "j" => 10, "k" => 11, "l" => 12, "m" => 13, "n" => 14}
 
