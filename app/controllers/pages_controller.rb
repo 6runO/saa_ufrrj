@@ -41,9 +41,9 @@ class PagesController < ApplicationController
       @h.parse_pdf(params[:historico].path, temp.path)
       csv = CSV.read(temp.path, headers: true)
       indexes_names
-      indexes_arrays
-      averages_arrays
-      save_graduation
+      indexes_values
+      indexes_averages
+      save_curriculo
       csv_analysis(csv)
       ##### Uncomment when queries are built #####
       # geral_summaries
@@ -52,126 +52,43 @@ class PagesController < ApplicationController
   end
 
   def indexes_names
-    # :variable => "Label"
-    @indexes_gerais = {cr: "CR:", ira: "IRA:", ratio_apr: "% APR:"}
-    @indexes_contrapartida = {hrs_apr_regulares_eletivas: "Hrs APR:",
+    #### :variable => "Label"
+    @gerais_names = {cr: "CR:", ira: "IRA:", ratio_apr: "% APR:"}
+    @contrapartida_names = {hrs_apr_regulares_eletivas: "Hrs APR:",
       hrs_rep_media_regulares_eletivas: "Hrs REP:", hrs_rep_falta_regulares_eletivas: "Hrs REPF:",
       num_rep_falta_regulares_eletivas: "Num REPF:", contrapartida_resultado: "Resultado:",
       contrapartida_motivo: "Motivo:"}
   end
 
-  def indexes_arrays
-    # :variable => [array]
-    @arrays_gerais = @indexes_gerais.transform_values {[]}
-    @arrays_contrapartida = @indexes_contrapartida.transform_values {[]}
-
-    @arrays_pontuais = {hrs_aproveitado_regulares: [], hrs_aproveitado_atividades: [],
-      hrs_apr_regulares: [], hrs_apr_eletivas: [],
-      hrs_apr_atividades: [], hrs_rep_media_atividades: [],
-      hrs_rep_falta_atividades: [],
-      hrs_cursado_regulares_eletivas: [], hrs_matriculado_regulares: [],
-      hrs_matriculado_eletivas: [], hrs_matriculado_atividades: [],
-      num_trancado: [], num_cancelado: [], num_matriculado: []}
-
-    @hrs_aproveitado_regulares = []
-    @hrs_aproveitado_atividades = []
-    @hrs_apr_regulares = []
-    @hrs_apr_eletivas = []
-    @hrs_apr_regulares_eletivas = []
-    @hrs_apr_atividades = []
-    @hrs_rep_media_regulares_eletivas = []
-    @hrs_rep_media_atividades = []
-    @hrs_rep_falta_regulares_eletivas = []
-    @hrs_rep_falta_atividades = []
-    @hrs_cursado_regulares_eletivas = []
-    @hrs_matriculado_regulares = []
-    @hrs_matriculado_eletivas = []
-    @hrs_matriculado_atividades = []
-    @num_rep_falta_regulares_eletivas = []
-    @num_trancado = []
-    @num_cancelado = []
-    @ratio_apr = []
-    @cr = []
-    @ira = []
-    @contrapartida_resultado = []
-    @contrapartida_motivo = []
-    @num_matriculado = []
-  end
-
-  def averages_arrays
+  def indexes_values
+    #### :variable => [array]
     @teste = {"a" => 1, "b" => 2, "c" => 13, "d" => 4, "e" => 5, "f" => 6, "g" => 7, "h" => 8,
     "i" => 9, "j" => 10, "k" => 11, "l" => 12, "m" => 13, "n" => 14}
 
-    @course_averages = {average_curso_hrs_aproveitado_regulares_atividades: [],
-    average_curso_hrs_apr_regulares_eletivas: [], average_curso_hrs_apr_atividades: [],
-    average_curso_hrs_rep_media_regulares_eletivas: [], average_curso_hrs_rep_media_atividades: [],
-    average_curso_hrs_rep_falta_regulares_eletivas: [], average_curso_hrs_rep_falta_atividades: [],
-    average_curso_hrs_matriculado_regulares_eletivas: [], average_curso_hrs_matriculado_atividades: [],
-    average_curso_num_rep_falta_regulares_eletivas: [], average_curso_num_trancado: [],
-    average_curso_num_cancelado: [], average_curso_ratio_apr: [],
-    average_curso_cr: [], average_curso_ira: []}
+    @gerais_values = @gerais_names.transform_values {[]}
+    @contrapartida_values = @contrapartida_names.transform_values {[]}
+    @pontuais_values = {hrs_aproveitado_regulares: [], hrs_aproveitado_atividades: [],
+      hrs_apr_regulares: [], hrs_apr_eletivas: [],
+      hrs_apr_atividades: [], hrs_rep_media_atividades: [],
+      hrs_rep_falta_atividades: [], hrs_matriculado_regulares: [],
+      hrs_matriculado_eletivas: [], hrs_matriculado_atividades: [],
+      num_trancado: [], num_cancelado: [], num_matriculado: []}
+  end
 
-    @average_curso_hrs_aproveitado_regulares_atividades = []
-    @average_curso_hrs_apr_regulares_eletivas = []
-    @average_curso_hrs_apr_atividades = []
-    @average_curso_hrs_rep_media_regulares_eletivas = []
-    @average_curso_hrs_rep_media_atividades = []
-    @average_curso_hrs_rep_falta_regulares_eletivas = []
-    @average_curso_hrs_rep_falta_atividades = []
-    @average_curso_hrs_matriculado_regulares_eletivas = []
-    @average_curso_hrs_matriculado_atividades = []
-    @average_curso_num_rep_falta_regulares_eletivas = []
-    @average_curso_num_trancado = []
-    @average_curso_num_cancelado = []
-    @average_curso_ratio_apr = []
-    @average_curso_cr = []
-    @average_curso_ira = []
-
-    @general_averages = {average_geral_hrs_aproveitado_regulares_atividades: [],
-    average_geral_hrs_apr_regulares_eletivas: [], average_geral_hrs_apr_atividades: [],
-    average_geral_hrs_rep_media_regulares_eletivas: [], average_geral_hrs_rep_media_atividades: [],
-    average_geral_hrs_rep_falta_regulares_eletivas: [], average_geral_hrs_rep_falta_atividades: [],
-    average_geral_hrs_matriculado_regulares_eletivas: [], average_geral_hrs_matriculado_atividades: [],
-    average_geral_num_rep_falta_regulares_eletivas: [], average_geral_num_trancado: [],
-    average_geral_num_cancelado: [], average_geral_ratio_apr: [],
-    average_geral_cr: [], average_geral_ira: []}
-
-    @average_geral_hrs_aproveitado_regulares_atividades = []
-    @average_geral_hrs_apr_regulares_eletivas = []
-    @average_geral_hrs_apr_atividades = []
-    @average_geral_hrs_rep_media_regulares_eletivas = []
-    @average_geral_hrs_rep_media_atividades = []
-    @average_geral_hrs_rep_falta_regulares_eletivas = []
-    @average_geral_hrs_rep_falta_atividades = []
-    @average_geral_hrs_matriculado_regulares_eletivas = []
-    @average_geral_hrs_matriculado_atividades = []
-    @average_geral_num_rep_falta_regulares_eletivas = []
-    @average_geral_num_trancado = []
-    @average_geral_num_cancelado = []
-    @average_geral_ratio_apr = []
-    @average_geral_cr = []
-    @average_geral_ira = []
+  def indexes_averages
+    @course_gerais_averages = @gerais_names.transform_values {[]}
+    @geral_contrapartida_averages = @contrapartida_names.transform_values {[]}
   end
 
   def save_curriculo
-
-  end
-
-  def save_graduation
-    graduation = Graduation.find_by(id_forged: @id_forged, curriculo: @h.curriculo, inicio: @h.inicio)
-    save_graduation_data(graduation)
-  end
-
-  def save_graduation_data(graduation)
-    unless graduation
-      @graduation = Graduation.new
-      @graduation.id_forged = @id_forged
-      @graduation.curso = @h.curso
-      @graduation.curriculo = @h.curriculo
-      @graduation.exigido = @h.exigido
-      @graduation.turno = @h.turno
-      @graduation.inicio = @h.inicio
-      @graduation.save!
+    curriculo = Curriculo.find_by(codigo: @h.curriculo)
+    unless curriculo
+      @curriculo = Curriculo.new
+      @curriculo.codigo = @h.curriculo
+      @curriculo.curso = @h.curso
+      @curriculo.exigido = @h.exigido
+      @curriculo.turno = @h.turno
+      @curriculo.save!
     end
   end
 
@@ -180,16 +97,17 @@ class PagesController < ApplicationController
     @unique_ano_per.each do |ano_per|
       csv_ano_per = csv.select { |row| row["ano_per"] == ano_per }
 
+      #### As situações matriculado, trancado e cancelado não precisam de array, pois só possuem um item
       situacoes_aproveitado = ["CUMPRIU", "TRANSFERIDO", "INCORPORADO", "DISPENSADO"]
       situacoes_apr = ["APR", "APRN"]
       situacoes_rep_media = ["REP", "REPN"]
       situacoes_rep_falta = ["REPF", "REPMF", "REPNF"]
-      #### As situações matriculado, trancado e cancelado não precisam de array, pois só possuem um item
 
+      #### O tipo eletivo não precisa de array, pois só possui um item
       tipos_regulares = ["", "*", "e", "&"]
       tipos_atividades = ["@", "§"]
-      #### O tipo eletivo não precisa de array, pois só possui um item
 
+      #### Filtering csv data
       aproveitado_regulares = csv_ano_per.select { |row| situacoes_aproveitado.include?(row['situacao']) && tipos_regulares.include?(row['tipo']) }
       aproveitado_atividades = csv_ano_per.select { |row| situacoes_aproveitado.include?(row['situacao']) && tipos_atividades.include?(row['tipo']) }
       apr_regulares = csv_ano_per.select { |row| situacoes_apr.include?(row['situacao']) && tipos_regulares.include?(row['tipo']) }
@@ -206,114 +124,115 @@ class PagesController < ApplicationController
       trancado = csv_ano_per.select { |row| row["situacao"] == "TRANCADO" }
       cancelado = csv_ano_per.select { |row| row["situacao"] == "CANCELADO" }
 
-      @hrs_aproveitado_regulares << aproveitado_regulares.sum(0) { |row| row["ch"].to_i }
-      @hrs_aproveitado_atividades << aproveitado_atividades.sum(0) { |row| row["ch"].to_i }
+      #### Pontuais values
+      @pontuais_values[:hrs_aproveitado_regulares] << aproveitado_regulares.sum(0) { |row| row["ch"].to_i }
+      @pontuais_values[:hrs_aproveitado_atividades] << aproveitado_atividades.sum(0) { |row| row["ch"].to_i }
+      @pontuais_values[:hrs_apr_regulares] << apr_regulares.sum(0) { |row| row["ch"].to_i }
+      @pontuais_values[:hrs_apr_eletivas] << apr_eletivas.sum(0) { |row| row["ch"].to_i }
+      @pontuais_values[:hrs_apr_atividades] << apr_atividades.sum(0) { |row| row["ch"].to_i }
+      @pontuais_values[:hrs_rep_media_atividades] << rep_media_atividades.sum(0) { |row| row["ch"].to_i }
+      @pontuais_values[:hrs_rep_falta_atividades] << rep_falta_atividades.sum(0) { |row| row["ch"].to_i }
+      @pontuais_values[:hrs_matriculado_regulares] << matriculado_regulares.sum(0) { |row| row["ch"].to_i }
+      @pontuais_values[:hrs_matriculado_eletivas] << matriculado_eletivas.sum(0) { |row| row["ch"].to_i }
+      @pontuais_values[:hrs_matriculado_atividades] << matriculado_atividades.sum(0) { |row| row["ch"].to_i }
+      @pontuais_values[:num_trancado] << trancado.size
+      @pontuais_values[:num_cancelado] << cancelado.size
+      @pontuais_values[:num_matriculado] << matriculado_num_total.count
 
-      hrs_apr_regulares = apr_regulares.sum(0) { |row| row["ch"].to_i }
-      hrs_apr_eletivas = apr_eletivas.sum(0) { |row| row["ch"].to_i }
-      hrs_apr_regulares_eletivas = hrs_apr_regulares + hrs_apr_eletivas
-      @hrs_apr_regulares << hrs_apr_regulares
-      @hrs_apr_eletivas << hrs_apr_eletivas
-      @hrs_apr_regulares_eletivas << hrs_apr_regulares_eletivas
+      #### Contrapartida values
+      @contrapartida_values[:hrs_apr_regulares_eletivas] << @pontuais_values[:hrs_apr_regulares].last +
+        @pontuais_values[:hrs_apr_eletivas].last
+      @contrapartida_values[:hrs_rep_media_regulares_eletivas] << rep_media_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
+      @contrapartida_values[:hrs_rep_falta_regulares_eletivas] << rep_falta_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
+      @contrapartida_values[:num_rep_falta_regulares_eletivas] << rep_falta_regulares_eletivas.size
 
-      @hrs_apr_atividades << apr_atividades.sum(0) { |row| row["ch"].to_i }
-
-      hrs_rep_media_regulares_eletivas = rep_media_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
-      @hrs_rep_media_regulares_eletivas << hrs_rep_media_regulares_eletivas
-      @hrs_rep_media_atividades << rep_media_atividades.sum(0) { |row| row["ch"].to_i }
-
-      hrs_rep_falta_regulares_eletivas = rep_falta_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
-      @hrs_rep_falta_regulares_eletivas << hrs_rep_falta_regulares_eletivas
-      @hrs_rep_falta_atividades << rep_falta_atividades.sum(0) { |row| row["ch"].to_i }
-
-      hrs_cursado_regulares_eletivas = hrs_apr_regulares_eletivas + hrs_rep_media_regulares_eletivas + hrs_rep_falta_regulares_eletivas
-      @hrs_cursado_regulares_eletivas << hrs_cursado_regulares_eletivas
-
-      @hrs_matriculado_regulares << matriculado_regulares.sum(0) { |row| row["ch"].to_i }
-      @hrs_matriculado_eletivas << matriculado_eletivas.sum(0) { |row| row["ch"].to_i }
-      @hrs_matriculado_atividades << matriculado_atividades.sum(0) { |row| row["ch"].to_i }
-      @hrs_matriculado_regulares_eletivas = @hrs_matriculado_regulares + @hrs_matriculado_eletivas
-      @num_matriculado << matriculado_num_total.count
-
-      @num_rep_falta_regulares_eletivas << rep_falta_regulares_eletivas.size
-      @num_trancado << trancado.size
-      @num_cancelado << cancelado.size
+      hrs_apr_regulares_eletivas = @contrapartida_values[:hrs_apr_regulares_eletivas].last
+      hrs_cursado_regulares_eletivas = @contrapartida_values[:hrs_apr_regulares_eletivas].last +
+        @contrapartida_values[:hrs_rep_media_regulares_eletivas].last +
+        @contrapartida_values[:hrs_rep_falta_regulares_eletivas].last
 
       csv_analysis_ratio_apr(hrs_apr_regulares_eletivas, hrs_cursado_regulares_eletivas)
       csv_analysis_cr_ira(csv, ano_per, csv_ano_per, situacoes_rep_falta)
       csv_analysis_contrapartida
-      save_period(ano_per)
+      save_cursado(ano_per)
       ##### Uncomment when queries are built #####
       # averages_curso(ano_per)
       # averages_geral(ano_per)
-      @unique_ano_per[0] = "0000.0" if @unique_ano_per[0] == "--"
     end
   end
 
   def csv_analysis_ratio_apr(hrs_apr_regulares_eletivas, hrs_cursado_regulares_eletivas)
     ratio_apr = hrs_cursado_regulares_eletivas == 0 ? 0 : ((hrs_apr_regulares_eletivas / hrs_cursado_regulares_eletivas).round(3))
-    @ratio_apr << ratio_apr
+    @gerais_values[:ratio_apr] << ratio_apr
   end
 
   def csv_analysis_cr_ira(csv, ano_per, csv_ano_per, situacoes_rep_falta)
     cr_rows = csv_ano_per.select { |row| numeric?(row["media"][0]) }
     ch_sum = cr_rows.sum(0.0) { |row| situacoes_rep_falta.include?(row["situacao"]) ? 0 : ((row["media"].gsub(",", ".").to_f) * row["ch"].to_f) }
     cr = cr_rows.empty? ? 0.0 : (ch_sum / (cr_rows.sum(0) { |row| row["ch"].to_f })).round(2)
-    @cr << cr
+    @gerais_values[:cr] << cr
 
     ira_rows = csv.select { |row| numeric?(row["media"][0]) && row["ano_per"] <= ano_per }
     ch_sum = ira_rows.sum(0.0) { |row| situacoes_rep_falta.include?(row["situacao"]) ? 0 : ((row["media"].gsub(",", ".").to_f) * row["ch"].to_f) }
     ira = ira_rows.empty? ? 0.0 : (ch_sum / (ira_rows.sum(0) { |row| row["ch"].to_f })).round(2)
-    @ira << ira
+    @gerais_values[:ira] << ira
   end
 
   def csv_analysis_contrapartida
-    @contrapartida_motivo << contrapartida_motivo(num_repf: @num_rep_falta_regulares_eletivas.last,
-      hrs_apr: @hrs_apr_regulares_eletivas.last, hrs_repm: @hrs_rep_media_regulares_eletivas.last,
-      hrs_repf: @hrs_rep_falta_regulares_eletivas.last, ratio_apr: @ratio_apr.last,
-      cr: @cr.last, ira: @ira.last, turno: @h.turno, num_matriculado: @num_matriculado.last)
-    @contrapartida_resultado << contrapartida_resultado(@contrapartida_motivo.last)
+    @contrapartida_values[:contrapartida_motivo] << contrapartida_motivo(
+      num_repf: @contrapartida_values[:num_rep_falta_regulares_eletivas].last,
+      hrs_apr: @contrapartida_values[:hrs_apr_regulares_eletivas].last,
+      hrs_repm: @contrapartida_values[:hrs_rep_media_regulares_eletivas].last,
+      hrs_repf: @contrapartida_values[:hrs_rep_falta_regulares_eletivas].last,
+      ratio_apr: @gerais_values[:ratio_apr].last, cr: @gerais_values[:cr].last,
+      ira: @gerais_values[:ira].last, turno: @h.turno,
+      num_matriculado: @pontuais_values[:num_matriculado].last)
+    @contrapartida_values[:contrapartida_resultado] << contrapartida_resultado(
+      @contrapartida_values[:contrapartida_motivo].last)
   end
 
-  def save_period(ano_per)
-    ano_per = "0000.0" if ano_per = "--"
-    # period_saved = Period.joins(:graduation).find_by(id_forged: @id_forged, ano_per: ano_per)
-    period_saved = Period.find_by(graduation_id: @graduation.id, ano_per: ano_per)
-    save_period_data(period_saved, ano_per)
-  end
-
-  def save_period_data(period_saved, ano_per)
-    if period_saved == nil && @num_matriculado == 0
-      period = Period.new
-      period.graduation = @graduation
-      period.ano_per = ano_per
-      period.hrs_aproveitado_regulares = @hrs_aproveitado_regulares.last
-      period.hrs_aproveitado_atividades = @hrs_aproveitado_atividades.last
-      period.hrs_apr_regulares = @hrs_apr_regulares.last
-      period.hrs_apr_eletivas = @hrs_apr_eletivas.last
-      period.hrs_apr_atividades = @hrs_apr_atividades.last
-      period.hrs_rep_media_regulares_eletivas = @hrs_rep_media_regulares_eletivas.last
-      period.hrs_rep_media_atividades = @hrs_rep_media_atividades.last
-      period.hrs_rep_falta_regulares_eletivas = @hrs_rep_falta_regulares_eletivas.last
-      period.hrs_rep_falta_atividades = @hrs_rep_falta_atividades.last
-      period.hrs_cursado_regulares_eletivas = @hrs_cursado_regulares_eletivas.last
-      period.hrs_matriculado_regulares = @hrs_matriculado_regulares.last
-      period.hrs_matriculado_eletivas = @hrs_matriculado_eletivas.last
-      period.hrs_matriculado_atividades = @hrs_matriculado_atividades.last
-      period.num_rep_falta_regulares_eletivas = @num_rep_falta_regulares_eletivas.last
-      period.num_trancado = @num_trancado.last
-      period.num_cancelado = @num_cancelado.last
-      period.ratio_apr = @ratio_apr.last
-      period.cr = @cr.last
-      period.ira = @ira.last
-      period.save!
+  def save_cursado(ano_per)
+    cursado = Cursado.find_by(matricula: @matricula, periodo: ano_per)
+    unless cursado || @pontuais_values[:num_matriculado].last > 0
+      new_cursado = Cursado.new
+      new_cursado.matricula = @h.matricula
+      new_cursado.periodo = ano_per
+      new_cursado.save!
+      save_periodo(ano_per)
     end
   end
 
+  def save_periodo(ano_per)
+    periodo = Periodo.new
+    periodo.curriculo = @curriculo
+    periodo.ano_per = ano_per
+    periodo.inicio_curso = @h.inicio
+    periodo.hrs_aproveitado_regulares = @hrs_aproveitado_regulares.last
+    periodo.hrs_aproveitado_atividades = @hrs_aproveitado_atividades.last
+    periodo.hrs_apr_regulares = @hrs_apr_regulares.last
+    periodo.hrs_apr_eletivas = @hrs_apr_eletivas.last
+    periodo.hrs_apr_atividades = @hrs_apr_atividades.last
+    periodo.hrs_rep_media_regulares_eletivas = @hrs_rep_media_regulares_eletivas.last
+    periodo.hrs_rep_media_atividades = @hrs_rep_media_atividades.last
+    periodo.hrs_rep_falta_regulares_eletivas = @hrs_rep_falta_regulares_eletivas.last
+    periodo.hrs_rep_falta_atividades = @hrs_rep_falta_atividades.last
+    # periodo.hrs_cursado_regulares_eletivas = @hrs_cursado_regulares_eletivas.last
+    periodo.hrs_matriculado_regulares = @hrs_matriculado_regulares.last
+    periodo.hrs_matriculado_eletivas = @hrs_matriculado_eletivas.last
+    periodo.hrs_matriculado_atividades = @hrs_matriculado_atividades.last
+    periodo.num_rep_falta_regulares_eletivas = @num_rep_falta_regulares_eletivas.last
+    periodo.num_trancado = @num_trancado.last
+    periodo.num_cancelado = @num_cancelado.last
+    periodo.ratio_apr = @gerais_values[:ratio_apr].last
+    periodo.cr = @gerais_values[:cr].last
+    periodo.ira = @gerais_values[:ira].last
+    periodo.save!
+  end
+
   def averages_curso(ano_per)
-    attendances_curso = Period.where(ano_per: ano_per, curso: @h.curso)
+    # attendances_curso = Periodo.where(ano_per: ano_per, curso: @h.curso)
     ### Review line below ###
-    #attendances_curso_cursado = Period.where(ano_per: ano_per, curso: @curso, "hrs_cursado_regulares_eletivas > ?", 0)
+    #attendances_curso_cursado = Periodo.where(ano_per: ano_per, curso: @curso, "hrs_cursado_regulares_eletivas > ?", 0)
 
     # completar com queries pelo rails
 
@@ -335,9 +254,9 @@ class PagesController < ApplicationController
   end
 
   def averages_geral(ano_per)
-    attendances_geral = Period.where(ano_per: ano_per)
+    # attendances_geral = Periodo.where(ano_per: ano_per)
     ### Review line below ###
-    # attendances_geral_cursado = Period.where(ano_per: ano_per, "hrs_cursado_regulares_eletivas > ?", 0)
+    # attendances_geral_cursado = Periodo.where(ano_per: ano_per, "hrs_cursado_regulares_eletivas > ?", 0)
 
     # completar com queries pelo rails
 

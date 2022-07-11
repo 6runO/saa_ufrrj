@@ -10,25 +10,31 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_06_26_193919) do
+ActiveRecord::Schema.define(version: 2022_07_11_010517) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "graduations", force: :cascade do |t|
-    t.string "id_forged"
+  create_table "curriculos", force: :cascade do |t|
+    t.string "codigo"
     t.string "curso"
-    t.string "curriculo"
     t.integer "exigido"
     t.string "turno"
-    t.string "inicio"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "periods", force: :cascade do |t|
-    t.bigint "graduation_id", null: false
+  create_table "cursados", force: :cascade do |t|
+    t.string "matricula"
+    t.string "periodo"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "periodos", force: :cascade do |t|
+    t.bigint "curriculo_id", null: false
     t.string "ano_per"
+    t.string "inicio_curso"
     t.integer "hrs_aproveitado_regulares"
     t.integer "hrs_aproveitado_atividades"
     t.integer "hrs_apr_regulares"
@@ -38,7 +44,6 @@ ActiveRecord::Schema.define(version: 2022_06_26_193919) do
     t.integer "hrs_rep_media_atividades"
     t.integer "hrs_rep_falta_regulares_eletivas"
     t.integer "hrs_rep_falta_atividades"
-    t.integer "hrs_cursado_regulares_eletivas"
     t.integer "hrs_matriculado_regulares"
     t.integer "hrs_matriculado_eletivas"
     t.integer "hrs_matriculado_atividades"
@@ -50,8 +55,8 @@ ActiveRecord::Schema.define(version: 2022_06_26_193919) do
     t.float "ira"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["graduation_id"], name: "index_periods_on_graduation_id"
+    t.index ["curriculo_id"], name: "index_periodos_on_curriculo_id"
   end
 
-  add_foreign_key "periods", "graduations"
+  add_foreign_key "periodos", "curriculos"
 end

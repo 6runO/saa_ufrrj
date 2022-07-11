@@ -52,8 +52,9 @@ class Historico
     page.text.each_line do |line|
       (@table_page = index + 1) if (line.include? "Carga Horária Integralizada/Pendente")
       data = line.split
+      data[0] = "0000.0" if data[0] == "--"
       first_word = data.first
-      if numeric?(first_word) || first_word == "--"
+      if numeric?(first_word) || first_word == "0000.0"
         first_array = (data[1].length > 1) ? [first_word, "", data[1]] : data.first(3)
         middle_array = number_on_right_to_array(data[-5])
         last_array = data.last(4)
