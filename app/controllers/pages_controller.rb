@@ -53,18 +53,15 @@ class PagesController < ApplicationController
 
   def indexes_names
     #### :variable => "Label"
-    @gerais_names = {cr: "CR:", ira: "IRA:", ratio_apr: "% APR:"}
-    @contrapartida_names = {hrs_apr_regulares_eletivas: "Hrs APR:",
-      hrs_rep_media_regulares_eletivas: "Hrs REP:", hrs_rep_falta_regulares_eletivas: "Hrs REPF:",
-      num_rep_falta_regulares_eletivas: "Num REPF:", contrapartida_resultado: "Resultado:",
-      contrapartida_motivo: "Motivo:"}
+    @gerais_names = {cr: "CR", ira: "IRA", ratio_apr: "% APR"}
+    @contrapartida_names = {hrs_apr_regulares_eletivas: "Hrs APR",
+      hrs_rep_media_regulares_eletivas: "Hrs REP", hrs_rep_falta_regulares_eletivas: "Hrs REPF",
+      num_rep_falta_regulares_eletivas: "Nº REPF", contrapartida_resultado: "Resultado",
+      contrapartida_motivo: "Motivo"}
   end
 
   def indexes_values
     #### :variable => [array]
-    @teste = {"a" => 1, "b" => 2, "c" => 13, "d" => 4, "e" => 5, "f" => 6, "g" => 7, "h" => 8,
-    "i" => 9, "j" => 10, "k" => 11, "l" => 12, "m" => 13, "n" => 14}
-
     @gerais_values = @gerais_names.transform_values {[]}
     @contrapartida_values = @contrapartida_names.transform_values {[]}
     @pontuais_values = {hrs_aproveitado_regulares: [], hrs_aproveitado_atividades: [],
@@ -192,7 +189,7 @@ class PagesController < ApplicationController
   end
 
   def save_cursado(ano_per)
-    cursado = Cursado.find_by(matricula: @matricula, periodo: ano_per)
+    cursado = Cursado.find_by(matricula: @h.matricula, periodo: ano_per)
     unless cursado || @pontuais_values[:num_matriculado].last > 0
       new_cursado = Cursado.new
       new_cursado.matricula = @h.matricula
@@ -207,22 +204,22 @@ class PagesController < ApplicationController
     periodo.curriculo = @curriculo
     periodo.ano_per = ano_per
     periodo.inicio_curso = @h.inicio
-    periodo.hrs_aproveitado_regulares = @hrs_aproveitado_regulares.last
-    periodo.hrs_aproveitado_atividades = @hrs_aproveitado_atividades.last
-    periodo.hrs_apr_regulares = @hrs_apr_regulares.last
-    periodo.hrs_apr_eletivas = @hrs_apr_eletivas.last
-    periodo.hrs_apr_atividades = @hrs_apr_atividades.last
-    periodo.hrs_rep_media_regulares_eletivas = @hrs_rep_media_regulares_eletivas.last
-    periodo.hrs_rep_media_atividades = @hrs_rep_media_atividades.last
-    periodo.hrs_rep_falta_regulares_eletivas = @hrs_rep_falta_regulares_eletivas.last
-    periodo.hrs_rep_falta_atividades = @hrs_rep_falta_atividades.last
+    periodo.hrs_aproveitado_regulares = @pontuais_values[:hrs_aproveitado_regulares].last
+    periodo.hrs_aproveitado_atividades = @pontuais_values[:hrs_aproveitado_atividades].last
+    periodo.hrs_apr_regulares = @pontuais_values[:hrs_apr_regulares].last
+    periodo.hrs_apr_eletivas = @pontuais_values[:hrs_apr_eletivas].last
+    periodo.hrs_apr_atividades = @pontuais_values[:hrs_apr_atividades].last
+    periodo.hrs_rep_media_regulares_eletivas = @contrapartida_values[:hrs_rep_media_regulares_eletivas].last
+    periodo.hrs_rep_media_atividades = @pontuais_values[:hrs_rep_media_atividades].last
+    periodo.hrs_rep_falta_regulares_eletivas = @contrapartida_values[:hrs_rep_falta_regulares_eletivas].last
+    periodo.hrs_rep_falta_atividades = @pontuais_values[:hrs_rep_falta_atividades].last
     # periodo.hrs_cursado_regulares_eletivas = @hrs_cursado_regulares_eletivas.last
-    periodo.hrs_matriculado_regulares = @hrs_matriculado_regulares.last
-    periodo.hrs_matriculado_eletivas = @hrs_matriculado_eletivas.last
-    periodo.hrs_matriculado_atividades = @hrs_matriculado_atividades.last
-    periodo.num_rep_falta_regulares_eletivas = @num_rep_falta_regulares_eletivas.last
-    periodo.num_trancado = @num_trancado.last
-    periodo.num_cancelado = @num_cancelado.last
+    periodo.hrs_matriculado_regulares = @pontuais_values[:hrs_matriculado_regulares].last
+    periodo.hrs_matriculado_eletivas = @pontuais_values[:hrs_matriculado_eletivas].last
+    periodo.hrs_matriculado_atividades = @pontuais_values[:hrs_matriculado_atividades].last
+    periodo.num_rep_falta_regulares_eletivas = @contrapartida_values[:num_rep_falta_regulares_eletivas].last
+    periodo.num_trancado = @pontuais_values[:num_trancado].last
+    periodo.num_cancelado = @pontuais_values[:num_cancelado].last
     periodo.ratio_apr = @gerais_values[:ratio_apr].last
     periodo.cr = @gerais_values[:cr].last
     periodo.ira = @gerais_values[:ira].last

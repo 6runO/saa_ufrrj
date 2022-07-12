@@ -32,7 +32,7 @@
 
 .index-data, .index-data-curso, .index-data-geral {
   padding: 0 8px;
-  width: 60px;
+  min-width: 60px;
 }
 
 .index-data {
@@ -71,7 +71,7 @@
     width: 70px;
   }
   .index-data, .index-data-curso, .index-data-geral {
-    width: 60px;
+    min-width: 60px;
   }
 }
 
