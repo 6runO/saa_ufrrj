@@ -78,8 +78,8 @@ class PagesController < ApplicationController
   end
 
   def save_curriculo
-    curriculo = Curriculo.find_by(codigo: @h.curriculo)
-    unless curriculo
+    @curriculo = Curriculo.find_by(codigo: @h.curriculo)
+    unless @curriculo
       @curriculo = Curriculo.new
       @curriculo.codigo = @h.curriculo
       @curriculo.curso = @h.curso
