@@ -2,7 +2,7 @@ require 'pdf-reader'
 require 'csv'
 
 class Historico
-  attr_reader :nome, :matricula, :data_nascimento, :cpf, :curriculo, :inicio, :turno, :curso, :exigido
+  attr_reader :nome, :matricula, :data_nascimento, :cpf, :curriculo, :inicio, :turno, :curso, :exigido, :ch_min
   #attr_reader :local_nascimento, :forma_ingresso
 
   def parse_pdf(pdf_path, csv_path)
@@ -93,6 +93,7 @@ class Historico
     curso = curso.split
     @turno = curso[-1]
     @curso = curso.join(' ')
+    @ch_min = (@turno.length > 1) ? 180 : 120
   end
 
   def collect_exigido(reader, table_page)

@@ -56,8 +56,7 @@ class PagesController < ApplicationController
     @gerais_names = {cr: "CR", ira: "IRA", ratio_apr: "% APR"}
     @contrapartida_names = {hrs_apr_regulares_eletivas: "Hrs APR",
       hrs_rep_media_regulares_eletivas: "Hrs REP", hrs_rep_falta_regulares_eletivas: "Hrs REPF",
-      num_rep_falta_regulares_eletivas: "Nº REPF", contrapartida_resultado: "Resultado",
-      contrapartida_motivo: "Motivo"}
+      num_rep_falta_regulares_eletivas: "Nº REPF"}
   end
 
   def indexes_values
@@ -70,6 +69,9 @@ class PagesController < ApplicationController
       hrs_rep_falta_atividades: [], hrs_matriculado_regulares: [],
       hrs_matriculado_eletivas: [], hrs_matriculado_atividades: [],
       num_trancado: [], num_cancelado: [], num_matriculado: []}
+    @hrs_cursado_regulares_eletivas = []
+    @contrapartida_resultado = []
+    @contrapartida_motivo = []
   end
 
   def indexes_averages
@@ -144,11 +146,11 @@ class PagesController < ApplicationController
       @contrapartida_values[:num_rep_falta_regulares_eletivas] << rep_falta_regulares_eletivas.size
 
       hrs_apr_regulares_eletivas = @contrapartida_values[:hrs_apr_regulares_eletivas].last
-      hrs_cursado_regulares_eletivas = @contrapartida_values[:hrs_apr_regulares_eletivas].last +
+      @hrs_cursado_regulares_eletivas << @contrapartida_values[:hrs_apr_regulares_eletivas].last +
         @contrapartida_values[:hrs_rep_media_regulares_eletivas].last +
         @contrapartida_values[:hrs_rep_falta_regulares_eletivas].last
 
-      csv_analysis_ratio_apr(hrs_apr_regulares_eletivas, hrs_cursado_regulares_eletivas)
+      csv_analysis_ratio_apr(hrs_apr_regulares_eletivas, @hrs_cursado_regulares_eletivas.last)
       csv_analysis_cr_ira(csv, ano_per, csv_ano_per, situacoes_rep_falta)
       csv_analysis_contrapartida
       save_cursado(ano_per)
@@ -156,10 +158,14 @@ class PagesController < ApplicationController
       # averages_curso(ano_per)
       # averages_geral(ano_per)
     end
+    @gerais_values[:ratio_apr].map! do |ratio|
+      # ratio == 1 ? "100%" : ((ratio * 100).to_s + "%")
+      (ratio * 100).round.to_s + "%"
+    end
   end
 
   def csv_analysis_ratio_apr(hrs_apr_regulares_eletivas, hrs_cursado_regulares_eletivas)
-    ratio_apr = hrs_cursado_regulares_eletivas == 0 ? 0 : ((hrs_apr_regulares_eletivas / hrs_cursado_regulares_eletivas).round(3))
+    ratio_apr = hrs_cursado_regulares_eletivas == 0 ? 0 : ((hrs_apr_regulares_eletivas.to_f / hrs_cursado_regulares_eletivas.to_f).round(3))
     @gerais_values[:ratio_apr] << ratio_apr
   end
 
@@ -176,16 +182,15 @@ class PagesController < ApplicationController
   end
 
   def csv_analysis_contrapartida
-    @contrapartida_values[:contrapartida_motivo] << contrapartida_motivo(
+    @contrapartida_motivo << contrapartida_motivo(
       num_repf: @contrapartida_values[:num_rep_falta_regulares_eletivas].last,
       hrs_apr: @contrapartida_values[:hrs_apr_regulares_eletivas].last,
       hrs_repm: @contrapartida_values[:hrs_rep_media_regulares_eletivas].last,
       hrs_repf: @contrapartida_values[:hrs_rep_falta_regulares_eletivas].last,
       ratio_apr: @gerais_values[:ratio_apr].last, cr: @gerais_values[:cr].last,
       ira: @gerais_values[:ira].last, turno: @h.turno,
-      num_matriculado: @pontuais_values[:num_matriculado].last)
-    @contrapartida_values[:contrapartida_resultado] << contrapartida_resultado(
-      @contrapartida_values[:contrapartida_motivo].last)
+      num_matriculado: @pontuais_values[:num_matriculado].last, ch_min: @h.ch_min)
+    @contrapartida_resultado << contrapartida_resultado(@contrapartida_motivo.last)
   end
 
   def save_cursado(ano_per)
