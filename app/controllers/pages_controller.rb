@@ -53,7 +53,7 @@ class PagesController < ApplicationController
 
   def indexes_names
     #### :variable => "Label"
-    @gerais_names = {cr: "CR", ira: "IRA", ratio_apr: "% APR"}
+    @gerais_names = {cr: "CR", ira: "IRA", ratio_apr: "% APR", }
     @contrapartida_names = {hrs_apr_regulares_eletivas: "Hrs APR",
       hrs_rep_media_regulares_eletivas: "Hrs REP", hrs_rep_falta_regulares_eletivas: "Hrs REPF",
       num_rep_falta_regulares_eletivas: "Nº REPF"}
