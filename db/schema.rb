@@ -16,10 +16,12 @@ ActiveRecord::Schema.define(version: 2022_07_11_010517) do
   enable_extension "plpgsql"
 
   create_table "curriculos", force: :cascade do |t|
-    t.string "codigo"
+    t.integer "codigo"
+    t.string "periodo"
     t.string "curso"
     t.integer "exigido"
     t.string "turno"
+    t.integer "duracao_esperada"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -44,9 +46,6 @@ ActiveRecord::Schema.define(version: 2022_07_11_010517) do
     t.integer "hrs_rep_media_atividades"
     t.integer "hrs_rep_falta_regulares_eletivas"
     t.integer "hrs_rep_falta_atividades"
-    t.integer "hrs_matriculado_regulares"
-    t.integer "hrs_matriculado_eletivas"
-    t.integer "hrs_matriculado_atividades"
     t.integer "num_rep_falta_regulares_eletivas"
     t.integer "num_trancado"
     t.integer "num_cancelado"

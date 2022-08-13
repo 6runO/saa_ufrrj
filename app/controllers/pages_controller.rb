@@ -53,7 +53,8 @@ class PagesController < ApplicationController
 
   def indexes_names
     #### :variable => "Label"
-    @gerais_names = {cr: "CR", ira: "IRA", ratio_apr: "% APR", }
+    @gerais_names = {cr: "CR", ira: "IRA", ratio_apr: "% APR",
+      num_trancado: "Nº Trancado", num_matriculado: "Nº Matriculado"}
     @contrapartida_names = {hrs_apr_regulares_eletivas: "Hrs APR",
       hrs_rep_media_regulares_eletivas: "Hrs REP", hrs_rep_falta_regulares_eletivas: "Hrs REPF",
       num_rep_falta_regulares_eletivas: "Nº REPF"}
@@ -68,7 +69,7 @@ class PagesController < ApplicationController
       hrs_apr_atividades: [], hrs_rep_media_atividades: [],
       hrs_rep_falta_atividades: [], hrs_matriculado_regulares: [],
       hrs_matriculado_eletivas: [], hrs_matriculado_atividades: [],
-      num_trancado: [], num_cancelado: [], num_matriculado: []}
+      num_cancelado: []}
     @hrs_cursado_regulares_eletivas = []
     @contrapartida_resultado = []
     @contrapartida_motivo = []
@@ -76,14 +77,17 @@ class PagesController < ApplicationController
 
   def indexes_averages
     @course_gerais_averages = @gerais_names.transform_values {[]}
+    @course_contrapartida_averages = @contrapartida_names.transform_values {[]}
+    @geral_gerais_averages = @gerais_names.transform_values {[]}
     @geral_contrapartida_averages = @contrapartida_names.transform_values {[]}
   end
 
   def save_curriculo
-    @curriculo = Curriculo.find_by(codigo: @h.curriculo)
+    @curriculo = Curriculo.find_by(codigo: @h.curriculo_codigo)
     unless @curriculo
       @curriculo = Curriculo.new
-      @curriculo.codigo = @h.curriculo
+      @curriculo.codigo = @h.curriculo_codigo
+      @curriculo.periodo = @h.curriculo_periodo
       @curriculo.curso = @h.curso
       @curriculo.exigido = @h.exigido
       @curriculo.turno = @h.turno
@@ -134,17 +138,20 @@ class PagesController < ApplicationController
       @pontuais_values[:hrs_matriculado_regulares] << matriculado_regulares.sum(0) { |row| row["ch"].to_i }
       @pontuais_values[:hrs_matriculado_eletivas] << matriculado_eletivas.sum(0) { |row| row["ch"].to_i }
       @pontuais_values[:hrs_matriculado_atividades] << matriculado_atividades.sum(0) { |row| row["ch"].to_i }
-      @pontuais_values[:num_trancado] << trancado.size
       @pontuais_values[:num_cancelado] << cancelado.size
-      @pontuais_values[:num_matriculado] << matriculado_num_total.count
 
       #### Contrapartida values
       @contrapartida_values[:hrs_apr_regulares_eletivas] << @pontuais_values[:hrs_apr_regulares].last +
-        @pontuais_values[:hrs_apr_eletivas].last
+      @pontuais_values[:hrs_apr_eletivas].last
       @contrapartida_values[:hrs_rep_media_regulares_eletivas] << rep_media_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
       @contrapartida_values[:hrs_rep_falta_regulares_eletivas] << rep_falta_regulares_eletivas.sum(0) { |row| row["ch"].to_i }
       @contrapartida_values[:num_rep_falta_regulares_eletivas] << rep_falta_regulares_eletivas.size
 
+      #### Gerais values
+      @gerais_values[:num_trancado] << trancado.size
+      @gerais_values[:num_matriculado] << matriculado_num_total.count
+
+      #### Other variables needed
       hrs_apr_regulares_eletivas = @contrapartida_values[:hrs_apr_regulares_eletivas].last
       @hrs_cursado_regulares_eletivas << @contrapartida_values[:hrs_apr_regulares_eletivas].last +
         @contrapartida_values[:hrs_rep_media_regulares_eletivas].last +
@@ -188,14 +195,15 @@ class PagesController < ApplicationController
       hrs_repm: @contrapartida_values[:hrs_rep_media_regulares_eletivas].last,
       hrs_repf: @contrapartida_values[:hrs_rep_falta_regulares_eletivas].last,
       ratio_apr: @gerais_values[:ratio_apr].last, cr: @gerais_values[:cr].last,
-      ira: @gerais_values[:ira].last, turno: @h.turno,
-      num_matriculado: @pontuais_values[:num_matriculado].last, ch_min: @h.ch_min)
+      ira: @gerais_values[:ira].last, num_matriculado: @gerais_values[:num_matriculado].last,
+      ch_min: @h.ch_min, hrs_matriculado_regulares: @pontuais_values[:hrs_matriculado_regulares].last,
+      hrs_matriculado_eletivas: @pontuais_values[:hrs_matriculado_eletivas].last)
     @contrapartida_resultado << contrapartida_resultado(@contrapartida_motivo.last)
   end
 
   def save_cursado(ano_per)
     cursado = Cursado.find_by(matricula: @h.matricula, periodo: ano_per)
-    unless cursado || @pontuais_values[:num_matriculado].last > 0
+    unless cursado || @gerais_values[:num_matriculado].last > 0
       new_cursado = Cursado.new
       new_cursado.matricula = @h.matricula
       new_cursado.periodo = ano_per
@@ -219,11 +227,8 @@ class PagesController < ApplicationController
     periodo.hrs_rep_falta_regulares_eletivas = @contrapartida_values[:hrs_rep_falta_regulares_eletivas].last
     periodo.hrs_rep_falta_atividades = @pontuais_values[:hrs_rep_falta_atividades].last
     # periodo.hrs_cursado_regulares_eletivas = @hrs_cursado_regulares_eletivas.last
-    periodo.hrs_matriculado_regulares = @pontuais_values[:hrs_matriculado_regulares].last
-    periodo.hrs_matriculado_eletivas = @pontuais_values[:hrs_matriculado_eletivas].last
-    periodo.hrs_matriculado_atividades = @pontuais_values[:hrs_matriculado_atividades].last
     periodo.num_rep_falta_regulares_eletivas = @contrapartida_values[:num_rep_falta_regulares_eletivas].last
-    periodo.num_trancado = @pontuais_values[:num_trancado].last
+    periodo.num_trancado = @gerais_values[:num_trancado].last
     periodo.num_cancelado = @pontuais_values[:num_cancelado].last
     periodo.ratio_apr = @gerais_values[:ratio_apr].last
     periodo.cr = @gerais_values[:cr].last
@@ -234,7 +239,7 @@ class PagesController < ApplicationController
   def averages_curso(ano_per)
     # attendances_curso = Periodo.where(ano_per: ano_per, curso: @h.curso)
     ### Review line below ###
-    #attendances_curso_cursado = Periodo.where(ano_per: ano_per, curso: @curso, "hrs_cursado_regulares_eletivas > ?", 0)
+    #attendances_curso_cursado = Periodo.where(ano_per: ano_per, curso: @h.curso, "hrs_cursado_regulares_eletivas > ?", 0)
 
     # completar com queries pelo rails
 

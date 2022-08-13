@@ -8,10 +8,13 @@ module Contrapartida
   MOTIVO7 = "REPF=1, RPM=0, CH>=240 e APR>=50%"
   MOTIVO8 = "APR<50% (REPF=0)"
   MOTIVO9 = "Matriculado"
+  MOTIVO10 = "Matriculado Insuficiente"
 
-  # def self.motivo(num_repf:, hrs_apr:, hrs_repm:, hrs_repf:, ratio_apr:, cr:, ira:, turno:, num_matriculado:)
-  def contrapartida_motivo(num_repf:, hrs_apr:, hrs_repm:, hrs_repf:, ratio_apr:, cr:, ira:, turno:, num_matriculado:, ch_min:)
+  # def self.motivo(num_repf:, hrs_apr:, hrs_repm:, hrs_repf:, ratio_apr:, cr:, ira:, num_matriculado:)
+  def contrapartida_motivo(num_repf:, hrs_apr:, hrs_repm:, hrs_repf:, ratio_apr:, cr:, ira:,
+    num_matriculado:, ch_min:, hrs_matriculado_regulares:, hrs_matriculado_eletivas:)
     hrs_cursado = hrs_apr + hrs_repm + hrs_repf
+    hrs_matriculado_regulares_eletivas = hrs_matriculado_regulares + hrs_matriculado_eletivas
     mtv1 = MOTIVO1 if num_repf > 1
     mtv2 = MOTIVO2 if (hrs_apr == 0 && hrs_repf == 0 && hrs_repm > 0)
     mtv3 = MOTIVO3 if (num_repf == 1 && ratio_apr < 0.5)
@@ -20,9 +23,12 @@ module Contrapartida
     mtv6 = MOTIVO6 if hrs_cursado < ch_min
     mtv7 = MOTIVO7 if (num_repf == 1 && hrs_repm == 0 && hrs_cursado >= 240 && ratio_apr >= 0.5)
     mtv8 = MOTIVO8 if (num_repf == 0 && ratio_apr < 0.5 && hrs_cursado > 0)
-    mtv9 = MOTIVO9 if num_matriculado > 0
-    if num_matriculado > 0
+    if hrs_matriculado_regulares_eletivas >= ch_min
       MOTIVO9
+    elsif hrs_matriculado_regulares_eletivas > 0
+      MOTIVO10
+    elsif num_matriculado > 0
+      MOTIVO10
     else
       motivo = [mtv1, mtv2, mtv3, mtv4, mtv5, mtv6, mtv7, mtv8]
       motivo = motivo.none? ? "N/A" : motivo.compact.join('; ')
@@ -40,6 +46,8 @@ module Contrapartida
       cp4
     elsif motivo == MOTIVO9
       cp5
+    elsif motivo == MOTIVO10
+      cp1
     elsif motivo.include?(MOTIVO1) || motivo.include?(MOTIVO2) || motivo.include?(MOTIVO3)
       cp1
     elsif motivo.include?(MOTIVO4) || motivo.include?(MOTIVO5) || motivo.include?(MOTIVO6)

@@ -2,8 +2,8 @@ require 'pdf-reader'
 require 'csv'
 
 class Historico
-  attr_reader :nome, :matricula, :data_nascimento, :cpf, :curriculo, :inicio, :turno, :curso, :exigido, :ch_min
-  #attr_reader :local_nascimento, :forma_ingresso
+  attr_reader :nome, :matricula, :curriculo_codigo, :curriculo_periodo, :inicio, :turno, :curso, :ch_min, :exigido
+  # attr_reader :cpf, :data_nascimento, :local_nascimento, :forma_ingresso
 
   def parse_pdf(pdf_path, csv_path)
     #### Doing stuff with pdf-reader
@@ -77,12 +77,16 @@ class Historico
       line_array = line.split
       (@nome = line_array[(line_array.index("Nome:") + 1)..(line_array.index("Matrícula:") - 1)].join(' ')) if line["Nome:"]
       (@matricula = line_array[line_array.index("Matrícula:") + 1]) if line["Matrícula:"]
-      (@data_nascimento = line_array[line_array.index("Nascimento:") + 1]) if line["Data de Nascimento:"]
-      (@cpf = line_array[line_array.index("CPF:") + 1]) if line["Nº do CPF:"]
-      (@curriculo = line_array[(line_array.index("Currículo:") + 1)..(line_array.index("Currículo:") + 3)].join(' ')) if line["Currículo:"]
+      if line["Currículo:"]
+        @curriculo_codigo = line_array[line_array.index("Currículo:") + 1].to_i
+        @curriculo_periodo = line_array[line_array.index("Currículo:") + 3]
+      end
       (@inicio = line_array[line_array.index("Inicial:") + 1]) if line["Período Letivo Inicial:"]
+      # (@cpf = line_array[line_array.index("CPF:") + 1]) if line["Nº do CPF:"]
+      # (@data_nascimento = line_array[line_array.index("Nascimento:") + 1]) if line["Data de Nascimento:"]
       # (@local_nascimento = line_array[(line_array.index("Local") + 3)..-1].join(' ')) if line["Local de Nascimento:"]
       # (@forma_ingresso = line_array[3..-1].join(' ')) if line["Forma de Ingresso:"]
+      # (@curriculo = line_array[(line_array.index("Currículo:") + 1)..(line_array.index("Currículo:") + 3)].join(' ')) if line["Currículo:"]
     end
   end
 
@@ -93,7 +97,7 @@ class Historico
     curso = curso.split
     @turno = curso[-1]
     @curso = curso.join(' ')
-    @ch_min = (@turno.length > 1) ? 180 : 120
+    @ch_min = (@turno.length > 1 || @turno == "I") ? 180 : 120
   end
 
   def collect_exigido(reader, table_page)
