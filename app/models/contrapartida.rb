@@ -4,11 +4,11 @@ module Contrapartida
   MOTIVO3 = "REPF=1 e APR<50%"
   MOTIVO4 = "REPF=1 e REPM>0"
   MOTIVO5 = "REPF=1 e CH<240"
-  MOTIVO6 = "CH Insuficiente"
+  MOTIVO6 = "CH Cursado Insuficiente"
   MOTIVO7 = "REPF=1, RPM=0, CH>=240 e APR>=50%"
   MOTIVO8 = "APR<50% (REPF=0)"
   MOTIVO9 = "Matriculado"
-  MOTIVO10 = "Matriculado Insuficiente"
+  MOTIVO10 = "CH Matriculado Insuficiente"
 
   # def self.motivo(num_repf:, hrs_apr:, hrs_repm:, hrs_repf:, ratio_apr:, cr:, ira:, num_matriculado:)
   def contrapartida_motivo(num_repf:, hrs_apr:, hrs_repm:, hrs_repf:, ratio_apr:, cr:, ira:,

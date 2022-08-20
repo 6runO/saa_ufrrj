@@ -69,15 +69,15 @@ class PagesController < ApplicationController
       hrs_apr_atividades: [], hrs_rep_media_atividades: [],
       hrs_rep_falta_atividades: [], hrs_matriculado_regulares: [],
       hrs_matriculado_eletivas: [], hrs_matriculado_atividades: [],
-      num_cancelado: []}
+      num_cancelado: [], mat_trancada: [], mat_cancelada: []}
     @hrs_cursado_regulares_eletivas = []
     @contrapartida_resultado = []
     @contrapartida_motivo = []
   end
 
   def indexes_averages
-    @course_gerais_averages = @gerais_names.transform_values {[]}
-    @course_contrapartida_averages = @contrapartida_names.transform_values {[]}
+    @curso_gerais_averages = @gerais_names.transform_values {[]}
+    @curso_contrapartida_averages = @contrapartida_names.transform_values {[]}
     @geral_gerais_averages = @gerais_names.transform_values {[]}
     @geral_contrapartida_averages = @contrapartida_names.transform_values {[]}
   end
@@ -111,6 +111,7 @@ class PagesController < ApplicationController
       tipos_atividades = ["@", "§"]
 
       #### Filtering csv data
+      aproveitado_geral = csv_ano_per.select { |row| situacoes_aproveitado.include?(row['situacao']) }
       aproveitado_regulares = csv_ano_per.select { |row| situacoes_aproveitado.include?(row['situacao']) && tipos_regulares.include?(row['tipo']) }
       aproveitado_atividades = csv_ano_per.select { |row| situacoes_aproveitado.include?(row['situacao']) && tipos_atividades.include?(row['tipo']) }
       apr_regulares = csv_ano_per.select { |row| situacoes_apr.include?(row['situacao']) && tipos_regulares.include?(row['tipo']) }
@@ -139,6 +140,8 @@ class PagesController < ApplicationController
       @pontuais_values[:hrs_matriculado_eletivas] << matriculado_eletivas.sum(0) { |row| row["ch"].to_i }
       @pontuais_values[:hrs_matriculado_atividades] << matriculado_atividades.sum(0) { |row| row["ch"].to_i }
       @pontuais_values[:num_cancelado] << cancelado.size
+      @pontuais_values[:mat_trancada] << ((csv_ano_per.size - aproveitado_geral.size) == trancado.size)
+      @pontuais_values[:mat_cancelada] << ((csv_ano_per.size - aproveitado_geral.size) == cancelado.size)
 
       #### Contrapartida values
       @contrapartida_values[:hrs_apr_regulares_eletivas] << @pontuais_values[:hrs_apr_regulares].last +
@@ -237,11 +240,13 @@ class PagesController < ApplicationController
   end
 
   def averages_curso(ano_per)
-    # attendances_curso = Periodo.where(ano_per: ano_per, curso: @h.curso)
+    # attendances_curso = Periodo.where(ano_per: ano_per, curriculo: @curriculo)
     ### Review line below ###
     #attendances_curso_cursado = Periodo.where(ano_per: ano_per, curso: @h.curso, "hrs_cursado_regulares_eletivas > ?", 0)
 
     # completar com queries pelo rails
+
+    # @curso_contrapartida_averages[:hrs_apr_regulares_eletivas] <<
 
     # @average_curso_hrs_aproveitado_regulares_atividades <<
     # @average_curso_hrs_apr_regulares_eletivas <<
