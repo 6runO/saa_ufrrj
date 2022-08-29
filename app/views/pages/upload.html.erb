@@ -56,24 +56,37 @@
               <div class="indexes-box pb-3 mr-md-4">
                 <h5 class="indexes-box-title text-center py-1 m-0">Índices Acadêmicos</h5>
                 <div class="container">
-                  <div class="row justify-content-between">
-                    <% @gerais_names.values.each_with_index do |name, i| %>
-                      <div class="col-12 col-sm-6 mt-2 mt-sm-3 title-data-col">
-                        <div class="row no-gutters index-row">
-                          <div class="col-2 col-sm-5">
-                            <p class="index-title mr-1 my-0"><%= "#{name}:" %></p>
-                          </div>
-                          <div class="col-10 col-sm-7 align-self-center triple-data-col">
-                            <div class="triple-data-box">
-                              <p class="index-data"><%= "#{@gerais_values.values[i][index]}" %></p>
-                              <p class="index-data-curso index-data-curso-off">0.00</p>
-                              <p class="index-data-geral index-data-geral-off">0.00</p>
+                  <div class="d-flex flex-wrap justify-content-between my-2">
+                    <p class="my-0 third-width">Nº Trancado: <%= @pontuais_values[:num_trancado][index] %></p>
+                    <p class="my-0 third-width">Nº Matriculado: <%= @pontuais_values[:num_matriculado][index] %></p>
+                  </div>
+                  <hr class="my-0">
+                  <% if @pontuais_values[:mat_trancada][index] %>
+                    <p class="text-center mt-4 dark-box">MATRÍCULA TRANCADA</p>
+                  <% elsif @pontuais_values[:mat_cancelada][index] %>
+                    <p class="text-center mt-4 dark-box">MATRÍCULA CANCELADA</p>
+                  <% elsif @pontuais_values[:num_matriculado][index] > 0 %>
+                    <p class="text-center mt-4 dark-box">MATRICULADO</p>
+                  <% else %>
+                    <div class="row justify-content-between align-items-center">
+                      <% @gerais_names.values.each_with_index do |name, i| %>
+                        <div class="col-12 col-sm-5 col-md-6 col-lg-5 mt-2 mt-sm-3 title-data-col">
+                          <div class="row no-gutters justify-content-sm-between index-row">
+                            <div class="col-3 col-sm-5">
+                              <p class="index-title text-left mr-1 my-0"><%= "#{name}:" %></p>
+                            </div>
+                            <div class="col-9 col-sm-7 align-self-center triple-data-col">
+                              <div class="triple-data-box">
+                                <p class="index-data"><%= "#{@gerais_values.values[i][index]}" %></p>
+                                <p class="index-data-curso index-data-curso-off">0.00</p>
+                                <p class="index-data-geral index-data-geral-off">0.00</p>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    <% end %>
-                  </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
               </div>
               <div class="indexes-box pb-3">
