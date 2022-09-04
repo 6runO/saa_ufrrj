@@ -83,7 +83,7 @@
                               <div class="triple-data-box">
                                 <p class="index-data"><%= @gerais_values.values[i][index] %></p>
                                 <p class="index-data-curso index-data-curso-off"><%= @curso_gerais_averages.values[i][index] %></p>
-                                <p class="index-data-geral index-data-geral-off"><%= @curso_contrapartida_averages.values[i][index] %></p>
+                                <p class="index-data-geral index-data-geral-off">0.0</p>
                               </div>
                             </div>
                           </div>
@@ -112,7 +112,7 @@
                           <div class="col-9 col-sm-7 align-self-center triple-data-col">
                             <div class="triple-data-box">
                               <p class="index-data"><%= "#{@contrapartida_values.values[i][index]}" %></p>
-                              <p class="index-data-curso index-data-curso-off">000</p>
+                              <p class="index-data-curso index-data-curso-off"><%= @curso_contrapartida_averages.values[i][index] %></p>
                               <p class="index-data-geral index-data-geral-off">000</p>
                             </div>
                           </div>

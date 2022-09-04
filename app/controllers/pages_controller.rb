@@ -23,24 +23,7 @@ class PagesController < ApplicationController
     elsif (File.size(params[:historico].path).to_f / 2**20).round(3) > 0.300
       redirect_to root_path, notice: "O arquivo selecionado não pode ter mais que 2MB."
     else
-      5.times {puts "-----------------"}
-      puts Periodo.first
-      2.times {puts "-----------------"}
-      puts Periodo.connection.select_all <<-SQL.squish
-        SELECT *
-        FROM periodos
-        GROUP BY periodos.id
-        HAVING SUM(periodos.hrs_apr_regulares + periodos.hrs_apr_eletivas +
-          periodos.hrs_rep_media_regulares_eletivas + periodos.hrs_rep_falta_regulares_eletivas) = 0
-      SQL
-      # puts c.select_all <<-SQL.squish
-      #   SELECT *
-      #   FROM curriculos
-      #   WHERE sum > 0
-      # SQL
-      5.times {puts "-----------------"}
-      # puts Periodo.connection.select_all("SELECT *, SUM(periodos.hrs_apr_regulares + periodos.hrs_rep_media_regulares_eletivas) AS sum FROM periodos")
-      # parse_uploaded_file
+      parse_uploaded_file
     end
   end
 
@@ -255,28 +238,33 @@ class PagesController < ApplicationController
   end
 
   def averages_curso(ano_per)
-    periodos_with_curriculos = Curriculo.joins(:periodos)
-    periodo_curso = periodos_with_curriculos.where("periodos.ano_per" => ano_per, curso: @curriculo.curso)
-    ### Review line below ###
-    periodo_curso_cursado = periodo_curso.connection.select_all <<-SQL.squish
+    periodo_curso = Curriculo.joins(:periodos).where("periodos.ano_per" => ano_per, curso: @curriculo.curso)
+    # periodo_curso = Curriculo.connection.select_all <<-SQL.squish
+    #     SELECT *
+    #     FROM curriculos
+    #     INNER JOIN periodos ON periodos.curriculo_id = curriculos.id
+    #   SQL
+
+    periodo_cursado = periodo_curso.connection.select_all <<-SQL.squish
         SELECT *
         FROM curriculos
-        GROUP BY curriculos.id
+        INNER JOIN periodos ON periodos.curriculo_id = curriculos.id
+        GROUP BY curriculos.id, periodos.id
         HAVING SUM(periodos.hrs_apr_regulares + periodos.hrs_apr_eletivas +
-          periodos.hrs_rep_media_regulares_eletivas + periodos.hrs_rep_falta_regulares_eletivas) > 0
+          periodos.hrs_rep_media_regulares_eletivas + periodos.hrs_rep_falta_regulares_eletivas) = 0
       SQL
-
-
+    ### Selecionar apenas hashes do ano_per
+    periodo_cursado = periodo_cursado.to_a
 
     #### SQL Queries through rails
-    if periodo_curso_cursado.empty?
+    if periodo_cursado.empty?
       @curso_gerais_averages[:cr] << "N/A"
       @curso_gerais_averages[:ira] << "N/A"
       @curso_gerais_averages[:ratio_apr] << "N/A"
     else
-      @curso_gerais_averages[:cr] << periodo_curso_cursado.average("cr").round(2)
-      @curso_gerais_averages[:ira] << periodo_curso_cursado.average("ira").round(2)
-      ratio = periodo_curso_cursado.average("ratio_apr").round(3)
+      @curso_gerais_averages[:cr] << (periodo_cursado.sum(0.0) {|c| c["cr"]} / periodo_cursado.size).round(2)
+      @curso_gerais_averages[:ira] << (periodo_cursado.sum(0.0) {|c| c["ira"]} / periodo_cursado.size).round(2)
+      ratio = (periodo_cursado.sum(0.0) {|c| c["ratio_apr"]} / periodo_cursado.size).round(3)
       ratio_formated = (ratio * 100).round.to_s + "%"
       @curso_gerais_averages[:ratio_apr] << ratio_formated
     end
@@ -296,6 +284,7 @@ class PagesController < ApplicationController
   end
 
   def averages_geral(ano_per)
+    periodo_geral = Curriculo.joins(:periodos).where("periodos.ano_per" => ano_per)
     # attendances_geral = Periodo.where(ano_per: ano_per)
     ### Review line below ###
     # attendances_geral_cursado = Periodo.where(ano_per: ano_per, "hrs_cursado_regulares_eletivas > ?", 0)
