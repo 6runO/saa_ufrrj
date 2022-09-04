@@ -9,6 +9,3 @@
 
 #### testes
 
-join_table = Curriculo.joins(:periodos)
-
-print join_table

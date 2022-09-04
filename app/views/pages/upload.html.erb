@@ -60,6 +60,7 @@
                     <p class="my-0 third-width">Nº Trancado: <%= @pontuais_values[:num_trancado][index] %></p>
                     <p class="my-0 third-width">Nº Matriculado: <%= @pontuais_values[:num_matriculado][index] %></p>
                     <p class="my-0 third-width">Nº Atividades: Cursado | Aprovado  </p>
+                    <p class="my-0 third-width">CH Aproveitado: </p>
                   </div>
                   <hr class="my-0">
                   <% if @pontuais_values[:mat_trancada][index] %>
@@ -68,6 +69,8 @@
                     <p class="text-center mt-4 dark-box">MATRÍCULA CANCELADA</p>
                   <% elsif @pontuais_values[:num_matriculado][index] > 0 %>
                     <p class="text-center mt-4 dark-box">MATRICULADO</p>
+                  <% elsif @pontuais_values[:nenhuma_situação][index] > 0 %>
+                    <p class="text-center mt-4 dark-box">SEM REGISTRO DE SITUAÇÃO DE DISCIPLINA</p>
                   <% else %>
                     <div class="row justify-content-between align-items-center">
                       <% @gerais_names.values.each_with_index do |name, i| %>

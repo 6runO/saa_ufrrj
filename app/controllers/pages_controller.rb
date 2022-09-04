@@ -23,11 +23,24 @@ class PagesController < ApplicationController
     elsif (File.size(params[:historico].path).to_f / 2**20).round(3) > 0.300
       redirect_to root_path, notice: "O arquivo selecionado não pode ter mais que 2MB."
     else
-      # c = Curriculo.joins(:periodos)
-      # d = c.find_by("periodos.ano_per" => "2020.1", curso: "ADMINISTRAÇÃO/ICSA - SEROPÉDICA - BACHARELADO - PRESENCIAL - MT")
-      # puts d.codigo
-      # puts d.periodo
-      parse_uploaded_file
+      5.times {puts "-----------------"}
+      puts Periodo.first
+      2.times {puts "-----------------"}
+      puts Periodo.connection.select_all <<-SQL.squish
+        SELECT *
+        FROM periodos
+        GROUP BY periodos.id
+        HAVING SUM(periodos.hrs_apr_regulares + periodos.hrs_apr_eletivas +
+          periodos.hrs_rep_media_regulares_eletivas + periodos.hrs_rep_falta_regulares_eletivas) = 0
+      SQL
+      # puts c.select_all <<-SQL.squish
+      #   SELECT *
+      #   FROM curriculos
+      #   WHERE sum > 0
+      # SQL
+      5.times {puts "-----------------"}
+      # puts Periodo.connection.select_all("SELECT *, SUM(periodos.hrs_apr_regulares + periodos.hrs_rep_media_regulares_eletivas) AS sum FROM periodos")
+      # parse_uploaded_file
     end
   end
 
@@ -73,7 +86,7 @@ class PagesController < ApplicationController
       hrs_rep_falta_atividades: [], hrs_matriculado_regulares: [],
       hrs_matriculado_eletivas: [], hrs_matriculado_atividades: [],
       num_cancelado: [], mat_trancada: [], mat_cancelada: [],
-      num_trancado: [], num_matriculado: []}
+      num_trancado: [], num_matriculado: [], nenhuma_situação: []}
     @hrs_cursado_regulares_eletivas = []
     @contrapartida_resultado = []
     @contrapartida_motivo = []
@@ -131,6 +144,7 @@ class PagesController < ApplicationController
       matriculado_num_total = csv_ano_per.select { |row| row["situacao"] == "MATRICULADO" }
       trancado = csv_ano_per.select { |row| row["situacao"] == "TRANCADO" }
       cancelado = csv_ano_per.select { |row| row["situacao"] == "CANCELADO" }
+      nenhuma_situação = csv_ano_per.select { |row| row["situacao"] == "--" }
 
       #### Pontuais values
       @pontuais_values[:hrs_aproveitado_regulares] << aproveitado_regulares.sum(0) { |row| row["ch"].to_i }
@@ -148,6 +162,7 @@ class PagesController < ApplicationController
       @pontuais_values[:mat_cancelada] << ((csv_ano_per.size - aproveitado_geral.size) == cancelado.size)
       @pontuais_values[:num_trancado] << trancado.size
       @pontuais_values[:num_matriculado] << matriculado_num_total.count
+      @pontuais_values[:nenhuma_situação] << csv_ano_per.size == nenhuma_situação.size
 
       #### Contrapartida values
       @contrapartida_values[:hrs_apr_regulares_eletivas] << @pontuais_values[:hrs_apr_regulares].last +
@@ -176,10 +191,6 @@ class PagesController < ApplicationController
   end
 
   def csv_analysis_ratio_apr(hrs_apr_regulares_eletivas, hrs_cursado_regulares_eletivas)
-    # acrescentar atividades
-    # acrescentar atividades
-    # acrescentar atividades
-    # acrescentar atividades
     ratio_apr = hrs_cursado_regulares_eletivas == 0 ? 0 : ((hrs_apr_regulares_eletivas.to_f / hrs_cursado_regulares_eletivas.to_f).round(3))
     @gerais_values[:ratio_apr] << ratio_apr
   end
@@ -211,12 +222,7 @@ class PagesController < ApplicationController
 
   def save_cursado(ano_per)
     cursado = Cursado.find_by(matricula: @h.matricula, periodo: ano_per)
-    # alterar linha abaixo
-    # alterar linha abaixo
-    # alterar linha abaixo
-    # alterar linha abaixo
-    # alterar linha abaixo - adicionar condição se todos os campos da coluna "Situação" são "--"
-    unless cursado || @pontuais_values[:num_matriculado].last > 0
+    unless cursado || @pontuais_values[:num_matriculado].last > 0 || @pontuais_values[:nenhuma_situação].last
       new_cursado = Cursado.new
       new_cursado.matricula = @h.matricula
       new_cursado.periodo = ano_per
@@ -252,28 +258,40 @@ class PagesController < ApplicationController
     periodos_with_curriculos = Curriculo.joins(:periodos)
     periodo_curso = periodos_with_curriculos.where("periodos.ano_per" => ano_per, curso: @curriculo.curso)
     ### Review line below ###
-    #periodo_curso_cursado = Periodo.where(ano_per: ano_per, curso: @h.curso, "hrs_cursado_regulares_eletivas > ?", 0)
+    periodo_curso_cursado = periodo_curso.connection.select_all <<-SQL.squish
+        SELECT *
+        FROM curriculos
+        GROUP BY curriculos.id
+        HAVING SUM(periodos.hrs_apr_regulares + periodos.hrs_apr_eletivas +
+          periodos.hrs_rep_media_regulares_eletivas + periodos.hrs_rep_falta_regulares_eletivas) > 0
+      SQL
+
+
 
     #### SQL Queries through rails
-    # if @pontuais_values[:mat_trancada].last or @pontuais_values[:mat_cancelada].last or @pontuais_values[:num_matriculado].last > 0
-    if periodo_curso
+    if periodo_curso_cursado.empty?
+      @curso_gerais_averages[:cr] << "N/A"
+      @curso_gerais_averages[:ira] << "N/A"
+      @curso_gerais_averages[:ratio_apr] << "N/A"
+    else
       @curso_gerais_averages[:cr] << periodo_curso_cursado.average("cr").round(2)
       @curso_gerais_averages[:ira] << periodo_curso_cursado.average("ira").round(2)
       ratio = periodo_curso_cursado.average("ratio_apr").round(3)
       ratio_formated = (ratio * 100).round.to_s + "%"
       @curso_gerais_averages[:ratio_apr] << ratio_formated
-      @curso_contrapartida_averages[:hrs_apr_regulares_eletivas] << periodo_curso.average("hrs_apr_regulares_eletivas").round
-      @curso_contrapartida_averages[:hrs_rep_media_regulares_eletivas] << periodo_curso.average("hrs_rep_media_regulares_eletivas").round
-      @curso_contrapartida_averages[:hrs_rep_falta_regulares_eletivas] << periodo_curso.average("hrs_rep_falta_regulares_eletivas").round
-      @curso_contrapartida_averages[:num_rep_falta_regulares_eletivas] << periodo_curso.average("num_rep_falta_regulares_eletivas").round
-    else
-      @curso_gerais_averages[:cr] << "N/A"
-      @curso_gerais_averages[:ira] << "N/A"
-      @curso_gerais_averages[:ratio_apr] << "N/A"
+    end
+
+    # if @pontuais_values[:mat_trancada].last or @pontuais_values[:mat_cancelada].last or @pontuais_values[:num_matriculado].last > 0
+    if periodo_curso.empty?
       @curso_contrapartida_averages[:hrs_apr_regulares_eletivas] << "N/A"
       @curso_contrapartida_averages[:hrs_rep_media_regulares_eletivas] << "N/A"
       @curso_contrapartida_averages[:hrs_rep_falta_regulares_eletivas] << "N/A"
       @curso_contrapartida_averages[:num_rep_falta_regulares_eletivas] << "N/A"
+    else
+      @curso_contrapartida_averages[:hrs_apr_regulares_eletivas] << periodo_curso.average("hrs_apr_regulares_eletivas").round
+      @curso_contrapartida_averages[:hrs_rep_media_regulares_eletivas] << periodo_curso.average("hrs_rep_media_regulares_eletivas").round
+      @curso_contrapartida_averages[:hrs_rep_falta_regulares_eletivas] << periodo_curso.average("hrs_rep_falta_regulares_eletivas").round
+      @curso_contrapartida_averages[:num_rep_falta_regulares_eletivas] << periodo_curso.average("num_rep_falta_regulares_eletivas").round
     end
   end
 
