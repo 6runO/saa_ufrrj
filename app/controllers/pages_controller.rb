@@ -238,11 +238,13 @@ class PagesController < ApplicationController
   end
 
   def averages_curso(ano_per)
-    periodo_curso = Curriculo.joins(:periodos).where("periodos.ano_per" => ano_per, curso: @curriculo.curso)
+    periodo_curso = Periodo.joins(:curriculo).where("periodos.ano_per" => ano_per, "curriculos.curso" => @curriculo.curso)
     # periodo_curso = Curriculo.connection.select_all <<-SQL.squish
     #     SELECT *
     #     FROM curriculos
     #     INNER JOIN periodos ON periodos.curriculo_id = curriculos.id
+    #     WHERE periodos.ano_per = #{ano_per}
+    #     AND curriculos.curso = #{@curriculo.curso}
     #   SQL
 
     periodo_cursado = periodo_curso.connection.select_all <<-SQL.squish
@@ -252,6 +254,7 @@ class PagesController < ApplicationController
         GROUP BY curriculos.id, periodos.id
         HAVING SUM(periodos.hrs_apr_regulares + periodos.hrs_apr_eletivas +
           periodos.hrs_rep_media_regulares_eletivas + periodos.hrs_rep_falta_regulares_eletivas) = 0
+          AND periodos.ano_per = #{ano_per} AND curriculos.curso = #{@curriculo.curso}
       SQL
     ### Selecionar apenas hashes do ano_per
     periodo_cursado = periodo_cursado.to_a
