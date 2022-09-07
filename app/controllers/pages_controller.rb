@@ -73,6 +73,8 @@ class PagesController < ApplicationController
     @hrs_cursado_regulares_eletivas = []
     @contrapartida_resultado = []
     @contrapartida_motivo = []
+    @registros_curso = []
+    @registros_geral = []
   end
 
   def indexes_averages
@@ -145,7 +147,7 @@ class PagesController < ApplicationController
       @pontuais_values[:mat_cancelada] << ((csv_ano_per.size - aproveitado_geral.size) == cancelado.size)
       @pontuais_values[:num_trancado] << trancado.size
       @pontuais_values[:num_matriculado] << matriculado_num_total.count
-      @pontuais_values[:nenhuma_situação] << csv_ano_per.size == nenhuma_situação.size
+      @pontuais_values[:nenhuma_situação] << (csv_ano_per.size == nenhuma_situação.size)
 
       #### Contrapartida values
       @contrapartida_values[:hrs_apr_regulares_eletivas] << @pontuais_values[:hrs_apr_regulares].last +
@@ -164,9 +166,8 @@ class PagesController < ApplicationController
       csv_analysis_cr_ira(csv, ano_per, csv_ano_per, situacoes_rep_falta)
       csv_analysis_contrapartida
       save_cursado(ano_per)
-      ##### Uncomment when queries are built #####
       averages_curso(ano_per)
-      # averages_geral(ano_per)
+      averages_geral(ano_per)
     end
     @gerais_values[:ratio_apr].map! do |ratio|
       (ratio * 100).round.to_s + "%"
@@ -238,77 +239,74 @@ class PagesController < ApplicationController
   end
 
   def averages_curso(ano_per)
-    periodo_curso = Periodo.joins(:curriculo).where("periodos.ano_per" => ano_per, "curriculos.curso" => @curriculo.curso)
-    # periodo_curso = Curriculo.connection.select_all <<-SQL.squish
-    #     SELECT *
-    #     FROM curriculos
-    #     INNER JOIN periodos ON periodos.curriculo_id = curriculos.id
-    #     WHERE periodos.ano_per = #{ano_per}
-    #     AND curriculos.curso = #{@curriculo.curso}
-    #   SQL
+    # periodo_curso = Curriculo.joins(:periodos).where("periodos.ano_per" => ano_per, "curriculos.curso" => @curriculo.curso)
+    periodo_cursado = Curriculo.connection.select_all <<-SQL.squish
+      SELECT *, (periodos.hrs_apr_regulares + periodos.hrs_apr_eletivas) AS total_apr
+      FROM curriculos
+      INNER JOIN periodos ON periodos.curriculo_id = curriculos.id
+      WHERE (periodos.hrs_apr_regulares + periodos.hrs_apr_eletivas +
+        periodos.hrs_rep_media_regulares_eletivas + periodos.hrs_rep_falta_regulares_eletivas) > 0
+        AND periodos.ano_per = '#{ano_per}'
+        AND curriculos.curso = '#{@curriculo.curso}'
+    SQL
 
-    periodo_cursado = periodo_curso.connection.select_all <<-SQL.squish
-        SELECT *
-        FROM curriculos
-        INNER JOIN periodos ON periodos.curriculo_id = curriculos.id
-        GROUP BY curriculos.id, periodos.id
-        HAVING SUM(periodos.hrs_apr_regulares + periodos.hrs_apr_eletivas +
-          periodos.hrs_rep_media_regulares_eletivas + periodos.hrs_rep_falta_regulares_eletivas) = 0
-          AND periodos.ano_per = #{ano_per} AND curriculos.curso = #{@curriculo.curso}
-      SQL
-    ### Selecionar apenas hashes do ano_per
     periodo_cursado = periodo_cursado.to_a
+    @registros_curso << periodo_cursado.size
 
-    #### SQL Queries through rails
     if periodo_cursado.empty?
       @curso_gerais_averages[:cr] << "N/A"
       @curso_gerais_averages[:ira] << "N/A"
       @curso_gerais_averages[:ratio_apr] << "N/A"
+      @curso_contrapartida_averages[:hrs_apr_regulares_eletivas] << "N/A"
+      @curso_contrapartida_averages[:hrs_rep_media_regulares_eletivas] << "N/A"
+      @curso_contrapartida_averages[:hrs_rep_falta_regulares_eletivas] << "N/A"
+      @curso_contrapartida_averages[:num_rep_falta_regulares_eletivas] << "N/A"
     else
       @curso_gerais_averages[:cr] << (periodo_cursado.sum(0.0) {|c| c["cr"]} / periodo_cursado.size).round(2)
       @curso_gerais_averages[:ira] << (periodo_cursado.sum(0.0) {|c| c["ira"]} / periodo_cursado.size).round(2)
       ratio = (periodo_cursado.sum(0.0) {|c| c["ratio_apr"]} / periodo_cursado.size).round(3)
       ratio_formated = (ratio * 100).round.to_s + "%"
       @curso_gerais_averages[:ratio_apr] << ratio_formated
-    end
-
-    # if @pontuais_values[:mat_trancada].last or @pontuais_values[:mat_cancelada].last or @pontuais_values[:num_matriculado].last > 0
-    if periodo_curso.empty?
-      @curso_contrapartida_averages[:hrs_apr_regulares_eletivas] << "N/A"
-      @curso_contrapartida_averages[:hrs_rep_media_regulares_eletivas] << "N/A"
-      @curso_contrapartida_averages[:hrs_rep_falta_regulares_eletivas] << "N/A"
-      @curso_contrapartida_averages[:num_rep_falta_regulares_eletivas] << "N/A"
-    else
-      @curso_contrapartida_averages[:hrs_apr_regulares_eletivas] << periodo_curso.average("hrs_apr_regulares_eletivas").round
-      @curso_contrapartida_averages[:hrs_rep_media_regulares_eletivas] << periodo_curso.average("hrs_rep_media_regulares_eletivas").round
-      @curso_contrapartida_averages[:hrs_rep_falta_regulares_eletivas] << periodo_curso.average("hrs_rep_falta_regulares_eletivas").round
-      @curso_contrapartida_averages[:num_rep_falta_regulares_eletivas] << periodo_curso.average("num_rep_falta_regulares_eletivas").round
+      @curso_contrapartida_averages[:hrs_apr_regulares_eletivas] << (periodo_cursado.sum(0.0) {|c| c["total_apr"]} / periodo_cursado.size).round
+      @curso_contrapartida_averages[:hrs_rep_media_regulares_eletivas] << (periodo_cursado.sum(0.0) {|c| c["hrs_rep_media_regulares_eletivas"]} / periodo_cursado.size).round
+      @curso_contrapartida_averages[:hrs_rep_falta_regulares_eletivas] << (periodo_cursado.sum(0.0) {|c| c["hrs_rep_falta_regulares_eletivas"]} / periodo_cursado.size).round
+      @curso_contrapartida_averages[:num_rep_falta_regulares_eletivas] << (periodo_cursado.sum(0.0) {|c| c["num_rep_falta_regulares_eletivas"]} / periodo_cursado.size).round
     end
   end
 
   def averages_geral(ano_per)
-    periodo_geral = Curriculo.joins(:periodos).where("periodos.ano_per" => ano_per)
-    # attendances_geral = Periodo.where(ano_per: ano_per)
-    ### Review line below ###
-    # attendances_geral_cursado = Periodo.where(ano_per: ano_per, "hrs_cursado_regulares_eletivas > ?", 0)
+    # periodo_geral = Curriculo.joins(:periodos).where("periodos.ano_per" => ano_per)
+    periodo_cursado = Curriculo.connection.select_all <<-SQL.squish
+      SELECT *, (periodos.hrs_apr_regulares + periodos.hrs_apr_eletivas) AS total_apr
+      FROM curriculos
+      INNER JOIN periodos ON periodos.curriculo_id = curriculos.id
+      WHERE (periodos.hrs_apr_regulares + periodos.hrs_apr_eletivas +
+        periodos.hrs_rep_media_regulares_eletivas + periodos.hrs_rep_falta_regulares_eletivas) > 0
+        AND periodos.ano_per = '#{ano_per}'
+    SQL
 
-    # completar com queries pelo rails
+    periodo_cursado = periodo_cursado.to_a
+    @registros_geral << periodo_cursado.size
 
-    # @average_geral_hrs_aproveitado_regulares_atividades <<
-    # @average_geral_hrs_apr_regulares_eletivas <<
-    # @average_geral_hrs_apr_atividades << attendances_geral.average(:hrs_apr_atividades).round
-    # @average_geral_hrs_rep_media_regulares_eletivas << attendances_geral.average(:hrs_rep_media_regulares_eletivas).round
-    # @average_geral_hrs_rep_media_atividades << attendances_geral.average(:hrs_rep_media_atividades).round
-    # @average_geral_hrs_rep_falta_regulares_eletivas << attendances_geral.average(:hrs_rep_falta_regulares_eletivas).round
-    # @average_geral_hrs_rep_falta_atividades << attendances_geral.average(:hrs_rep_falta_atividades).round
-    # @average_geral_hrs_matriculado_regulares_eletivas <<
-    # @average_geral_hrs_matriculado_atividades << attendances_geral.average(:hrs_matriculado_atividades).round
-    # @average_geral_num_rep_falta_regulares_eletivas << attendances_geral.average(:num_rep_falta_regulares_eletivas).round
-    # @average_geral_num_trancado << attendances_geral.average(:num_trancado).round
-    # @average_geral_num_cancelado << attendances_geral.average(:num_cancelado).round
-    # @average_geral_ratio_apr << attendances_geral_cursado.average(:ratio_apr).round(3)
-    # @average_geral_cr << attendances_geral_cursado.average(:cr).round(2)
-    # @average_geral_ira << attendances_geral.average(:ira).round(2)
+    if periodo_cursado.empty?
+      @geral_gerais_averages[:cr] << "N/A"
+      @geral_gerais_averages[:ira] << "N/A"
+      @geral_gerais_averages[:ratio_apr] << "N/A"
+      @geral_contrapartida_averages[:hrs_apr_regulares_eletivas] << "N/A"
+      @geral_contrapartida_averages[:hrs_rep_media_regulares_eletivas] << "N/A"
+      @geral_contrapartida_averages[:hrs_rep_falta_regulares_eletivas] << "N/A"
+      @geral_contrapartida_averages[:num_rep_falta_regulares_eletivas] << "N/A"
+    else
+      @geral_gerais_averages[:cr] << (periodo_cursado.sum(0.0) {|c| c["cr"]} / periodo_cursado.size).round(2)
+      @geral_gerais_averages[:ira] << (periodo_cursado.sum(0.0) {|c| c["ira"]} / periodo_cursado.size).round(2)
+      ratio = (periodo_cursado.sum(0.0) {|c| c["ratio_apr"]} / periodo_cursado.size).round(3)
+      ratio_formated = (ratio * 100).round.to_s + "%"
+      @geral_gerais_averages[:ratio_apr] << ratio_formated
+      @geral_contrapartida_averages[:hrs_apr_regulares_eletivas] << (periodo_cursado.sum(0.0) {|c| c["total_apr"]} / periodo_cursado.size).round
+      @geral_contrapartida_averages[:hrs_rep_media_regulares_eletivas] << (periodo_cursado.sum(0.0) {|c| c["hrs_rep_media_regulares_eletivas"]} / periodo_cursado.size).round
+      @geral_contrapartida_averages[:hrs_rep_falta_regulares_eletivas] << (periodo_cursado.sum(0.0) {|c| c["hrs_rep_falta_regulares_eletivas"]} / periodo_cursado.size).round
+      @geral_contrapartida_averages[:num_rep_falta_regulares_eletivas] << (periodo_cursado.sum(0.0) {|c| c["num_rep_falta_regulares_eletivas"]} / periodo_cursado.size).round
+    end
   end
 
   def geral_summaries
